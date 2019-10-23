@@ -1,0 +1,42 @@
+{
+    "name": "laminas/laminas-dependency-plugin",
+    "description": "Replace zendframework and zfcampus packages with their Laminas Project equivalents.",
+    "type": "composer-plugin",
+    "license": "BSD-3-Clause",
+    "config": {
+        "sort-packages": true
+    },
+    "require": {
+        "php": "^7.1",
+        "composer-plugin-api": "^1.1"
+    },
+    "require-dev": {
+        "composer/composer": "^1.9",
+        "phpunit/phpunit": "^8.4",
+        "roave/security-advisories": "dev-master",
+        "webimpress/coding-standard": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Laminas\\DependencyPlugin\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "LaminasTest\\DependencyPlugin\\": "test/"
+        }
+    },
+    "extra": {
+        "class": "Laminas\\DependencyPlugin\\DependencyRewriterPlugin"
+    },
+    "scripts": {
+        "check": [
+            "@cs-check",
+            "@test"
+        ],
+        "cs-check": "phpcs",
+        "cs-fix": "phpcbf",
+        "test": "phpunit --colors=always",
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
+    }
+}

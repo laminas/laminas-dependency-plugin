@@ -1,0 +1,8 @@
+docs_dir: docs/book
+site_dir: docs/html
+nav:
+    - Home: index.md
+    - Introduction: intro.md
+site_name: 'laminas-dependency-plugin'
+site_description: 'Intercept requests to install zendframework and zfcampus packages, and replace them with Laminas packages.'
+repo_url: 'https://github.com/laminas/laminas-dependency-plugin'
