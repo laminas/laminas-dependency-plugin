@@ -56,6 +56,10 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         $changes = false;
 
         foreach ($jobs as $index => $job) {
+            if (! isset($job['cmd']) || ! in_array($job['cmd'], ['install', 'update'], true)) {
+                continue;
+            }
+
             if (! isset($job['packageName'])) {
                 continue;
             }
