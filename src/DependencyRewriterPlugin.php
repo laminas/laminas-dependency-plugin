@@ -12,6 +12,8 @@ namespace Laminas\DependencyPlugin;
 use Composer\Composer;
 use Composer\DependencyResolver\Operation;
 use Composer\EventDispatcher\EventSubscriberInterface;
+use Composer\Installer\InstallerEvent;
+use Composer\Installer\InstallerEvents;
 use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
@@ -34,7 +36,8 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     public static function getSubscribedEvents() : array
     {
         return [
-            PackageEvents::PRE_PACKAGE_INSTALL => ['onPrePackageInstall', 1000],
+            InstallerEvents::PRE_DEPENDENCIES_SOLVING => ['onPreDependenciesSolving', 1000],
+            PackageEvents::PRE_PACKAGE_INSTALL        => ['onPrePackageInstall', 1000],
         ];
     }
 
@@ -45,7 +48,42 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         $this->io->write(sprintf('<info>Activating %s</info>', __CLASS__));
     }
 
-    public function onPrePackageInstall(PackageEvent $event)
+    public function onPreDependenciesSolving(InstallerEvent $event) : void
+    {
+        $this->io->write(sprintf('<info>In %s</info>', __METHOD__));
+        $request = $event->getRequest();
+        $jobs    = $request->getJobs();
+        $changes = false;
+
+        foreach ($jobs as $index => $job) {
+            if (! isset($job['packageName'])) {
+                continue;
+            }
+
+            $name = $job['packageName'];
+            if (! $this->isZendPackage($name)) {
+                continue;
+            }
+
+            $replacementName = $this->transformPackageName($name);
+            if ($replacementName === $name) {
+                continue;
+            }
+
+            $this->io->write(sprintf(
+                '<info>Replacing package "%s" with package "%s"</info>',
+                $name,
+                $replacementName
+            ));
+            $job['packageName'] = $replacementName;
+            $jobs[$index]       = $job;
+            $changes            = true;
+        }
+
+        $this->updateProperty($request, 'jobs', $jobs);
+    }
+
+    public function onPrePackageInstall(PackageEvent $event) : void
     {
         $this->io->write(sprintf('<info>In %s</info>', __METHOD__));
         $operation = $event->getOperation();
@@ -67,9 +105,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         }
 
         $name = $package->getName();
-        if (! preg_match('#^(zendframework|zfcampus)/#', $name)
-            || in_array($name, $this->ignore, true)
-        ) {
+        if (! $this->isZendPackage($name)) {
             // Nothing to do
             $this->io->write(sprintf(
                 '<info>Exiting; package "%s" does not have a replacement</info>',
@@ -109,6 +145,17 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         ));
 
         $this->updatePackageFromReplacement($package, $replacementPackage);
+    }
+
+    private function isZendPackage(string $name) : bool
+    {
+        if (! preg_match('#^(zendframework|zfcampus)/#', $name)
+            || in_array($name, $this->ignore, true)
+        ) {
+            return false;
+        }
+
+        return true;
     }
 
     private function transformPackageName(string $name) : string
@@ -164,10 +211,13 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         $original->replaceVersion($replacement->getVersion(), $replacement->getPrettyVersion());
     }
 
-    private function updateProperty(PackageInterface $package, string $property, string $value) : void
+    /**
+     * @param mixed $value
+     */
+    private function updateProperty(object $object, string $property, $value) : void
     {
-        $r = new ReflectionProperty($package, $property);
+        $r = new ReflectionProperty($object, $property);
         $r->setAccessible(true);
-        $r->setValue($package, $value);
+        $r->setValue($object, $value);
     }
 }
