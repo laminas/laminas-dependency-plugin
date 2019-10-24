@@ -18,14 +18,18 @@ use Composer\Installer\PackageEvent;
 use Composer\Installer\PackageEvents;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
+use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
+use Composer\Plugin\PreCommandRunEvent;
 use ReflectionProperty;
+use Symfony\Component\Console\Input\InputInterface;
 
 class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterface
 {
     /** Composer */
     private $composer;
 
+    /** @var string[] */
     private $ignore = [
         'zfcampus/zf-console',
     ];
@@ -38,6 +42,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         return [
             InstallerEvents::PRE_DEPENDENCIES_SOLVING => ['onPreDependenciesSolving', 1000],
             PackageEvents::PRE_PACKAGE_INSTALL        => ['onPrePackageInstall', 1000],
+            PluginEvents::PRE_COMMAND_RUN             => ['onPreCommandRun', 1000],
         ];
     }
 
@@ -45,12 +50,43 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     {
         $this->composer = $composer;
         $this->io       = $io;
-        $this->io->write(sprintf('<info>Activating %s</info>', __CLASS__));
+        $this->output(sprintf('<info>Activating %s</info>', __CLASS__), IOInterface::DEBUG);
     }
 
+    /**
+     * When a ZF package is requested, replace with the Laminas variant.
+     *
+     * When a `require` operation is requested, and a ZF package is detected,
+     * this listener will replace the argument with the equivalent Laminas
+     * package. This ensures that the `composer.json` file is written to
+     * reflect the package installed.
+     */
+    public function onPreCommandRun(PreCommandRunEvent $event) : void
+    {
+        if ('require' !== $event->getCommand()) {
+            // Nothing to do here.
+            return;
+        }
+
+        $input = $event->getInput();
+        $input->setArgument(
+            'packages',
+            array_map([$this, 'updatePackageArgument'], $input->getArgument('packages'))
+        );
+    }
+
+    /**
+     * Replace ZF packages present in the composer.json during install or
+     * update operations.
+     *
+     * When the `composer.json` has references to ZF packages, and the user
+     * requests an `install` or `update`, this method will rewrite any such
+     * packages to their Laminas equivalents prior to attempting to resolve
+     * dependencies, ensuring the Laminas versions are installed.
+     */
     public function onPreDependenciesSolving(InstallerEvent $event) : void
     {
-        $this->io->write(sprintf('<info>In %s</info>', __METHOD__));
+        $this->output(sprintf('<info>In %s</info>', __METHOD__), IOInterface::DEBUG);
         $request = $event->getRequest();
         $jobs    = $request->getJobs();
         $changes = false;
@@ -74,11 +110,11 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
                 continue;
             }
 
-            $this->io->write(sprintf(
+            $this->output(sprintf(
                 '<info>Replacing package "%s" with package "%s"</info>',
                 $name,
                 $replacementName
-            ));
+            ), IOInterface::VERBOSE);
             $job['packageName'] = $replacementName;
             $jobs[$index]       = $job;
             $changes            = true;
@@ -87,9 +123,16 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         $this->updateProperty($request, 'jobs', $jobs);
     }
 
+    /**
+     * Ensure nested dependencies on ZF packages install equivalent Laminas packages.
+     *
+     * When a 3rd party package has dependencies on ZF packages, this method
+     * will detect the request to install a ZF package, and rewrite it to use a
+     * Laminas variant at the equivalent version, if one exists.
+     */
     public function onPrePackageInstall(PackageEvent $event) : void
     {
-        $this->io->write(sprintf('<info>In %s</info>', __METHOD__));
+        $this->output(sprintf('<info>In %s</info>', __METHOD__), IOInterface::DEBUG);
         $operation = $event->getOperation();
 
         switch (true) {
@@ -101,30 +144,30 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
                 break;
             default:
                 // Nothing to do
-                $this->io->write(sprintf(
+                $this->output(sprintf(
                     '<info>Exiting; operation of type %s not supported</info>',
                     get_class($operation)
-                ));
+                ), IOInterface::DEBUG);
                 return;
         }
 
         $name = $package->getName();
         if (! $this->isZendPackage($name)) {
             // Nothing to do
-            $this->io->write(sprintf(
+            $this->output(sprintf(
                 '<info>Exiting; package "%s" does not have a replacement</info>',
                 $name
-            ));
+            ), IOInterface::DEBUG);
             return;
         }
 
         $replacementName = $this->transformPackageName($name);
         if ($replacementName === $name) {
             // Nothing to do
-            $this->io->write(sprintf(
+            $this->output(sprintf(
                 '<info>Exiting; while package "%s" is a ZF package, it does not have a replacement</info>',
                 $name
-            ));
+            ), IOInterface::DEBUG);
             return;
         }
 
@@ -133,22 +176,48 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
 
         if (null === $replacementPackage) {
             // No matching replacement package found
-            $this->io->write(sprintf(
+            $this->output(sprintf(
                 '<info>Exiting; no replacement package found for package "%s" with version %s</info>',
                 $replacementName,
                 $version
-            ));
+            ), IOInterface::DEBUG);
             return;
         }
 
-        $this->io->write(sprintf(
+        $this->output(sprintf(
             '<info>Replacing package %s with package %s, using version %s</info>',
             $name,
             $replacementName,
             $version
-        ));
+        ), IOInterface::VERBOSE);
 
         $this->updatePackageFromReplacement($package, $replacementPackage);
+    }
+
+    /**
+     * Parses a package argument from the command line, replacing it with the
+     * Laminas variant if it exists.
+     */
+    private function updatePackageArgument(string $package) : string
+    {
+        $result = preg_split('/[ :=]/', $package, 2);
+        if (false === $result) {
+            return $package;
+        }
+        $name = array_shift($result);
+
+        if (! $this->isZendPackage($name)) {
+            return $package;
+        }
+
+        $replacementName = $this->transformPackageName($name);
+        $version         = count($result) ? array_shift($result) : null;
+
+        if (null === $version) {
+            return $replacementName;
+        }
+
+        return sprintf('%s:%s', $replacementName, $version);
     }
 
     private function isZendPackage(string $name) : bool
@@ -223,5 +292,10 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         $r = new ReflectionProperty($object, $property);
         $r->setAccessible(true);
         $r->setValue($object, $value);
+    }
+
+    private function output(string $message, int $verbosity = IOInterface::NORMAL) : void
+    {
+        $this->io->write($message, $newline = true, $verbosity);
     }
 }
