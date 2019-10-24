@@ -9,10 +9,6 @@ declare(strict_types=1);
 
 namespace LaminasTest\DependencyPlugin;
 
-use Composer\Composer;
-use Composer\IO\IOInterface;
-use Composer\Plugin\PluginInterface;
-use Laminas\DependencyPlugin\DependencyRewriterPlugin;
 use PHPUnit\Framework\TestCase;
 
 class DependencyRewriterPluginTest extends TestCase

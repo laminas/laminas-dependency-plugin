@@ -22,7 +22,15 @@ use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
 use Composer\Plugin\PreCommandRunEvent;
 use ReflectionProperty;
-use Symfony\Component\Console\Input\InputInterface;
+
+use function array_map;
+use function array_shift;
+use function count;
+use function get_class;
+use function in_array;
+use function preg_match;
+use function preg_split;
+use function sprintf;
 
 class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterface
 {
@@ -41,15 +49,15 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     {
         return [
             InstallerEvents::PRE_DEPENDENCIES_SOLVING => ['onPreDependenciesSolving', 1000],
-            PackageEvents::PRE_PACKAGE_INSTALL        => ['onPrePackageInstall', 1000],
-            PluginEvents::PRE_COMMAND_RUN             => ['onPreCommandRun', 1000],
+            PackageEvents::PRE_PACKAGE_INSTALL => ['onPrePackageInstall', 1000],
+            PluginEvents::PRE_COMMAND_RUN => ['onPreCommandRun', 1000],
         ];
     }
 
     public function activate(Composer $composer, IOInterface $io) : void
     {
         $this->composer = $composer;
-        $this->io       = $io;
+        $this->io = $io;
         $this->output(sprintf('<info>Activating %s</info>', __CLASS__), IOInterface::DEBUG);
     }
 
@@ -88,7 +96,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     {
         $this->output(sprintf('<info>In %s</info>', __METHOD__), IOInterface::DEBUG);
         $request = $event->getRequest();
-        $jobs    = $request->getJobs();
+        $jobs = $request->getJobs();
         $changes = false;
 
         foreach ($jobs as $index => $job) {
@@ -116,8 +124,8 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
                 $replacementName
             ), IOInterface::VERBOSE);
             $job['packageName'] = $replacementName;
-            $jobs[$index]       = $job;
-            $changes            = true;
+            $jobs[$index] = $job;
+            $changes = true;
         }
 
         $this->updateProperty($request, 'jobs', $jobs);
@@ -136,10 +144,10 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         $operation = $event->getOperation();
 
         switch (true) {
-            case ($operation instanceof Operation\InstallOperation):
+            case $operation instanceof Operation\InstallOperation:
                 $package = $operation->getPackage();
                 break;
-            case ($operation instanceof Operation\UpdateOperation):
+            case $operation instanceof Operation\UpdateOperation:
                 $package = $operation->getTargetPackage();
                 break;
             default:
@@ -211,7 +219,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         }
 
         $replacementName = $this->transformPackageName($name);
-        $version         = count($result) ? array_shift($result) : null;
+        $version = count($result) ? array_shift($result) : null;
 
         if (null === $version) {
             return $replacementName;
