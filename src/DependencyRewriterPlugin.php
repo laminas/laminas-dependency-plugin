@@ -247,6 +247,13 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     private function transformPackageName(string $name) : string
     {
         switch ($name) {
+            // Packages without replacements:
+            case 'zendframework/zend-version':
+            case 'zfcampus/zf-apigilty-example':
+            case 'zfcampus/zf-angular':
+            case 'zfcampus/zf-console':
+                return $name;
+            // Packages with non-standard naming:
             case 'zendframework/zenddiagnostics':
                 return 'laminas/laminas-diagnostics';
             case 'zendframework/zendoauth':
@@ -265,22 +272,15 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
                 return 'expressive/expressive';
             case 'zendframework/zend-problem-details':
                 return 'expressive/expressive-problem-details';
-            case 'zendframework/zend-version':
-                return $name;
             case 'zfcampus/zf-apigilty':
                 return 'apigility/apigility';
-            case 'zfcampus/zf-apigilty-example':
-                return $name;
-            case 'zfcampus/zf-angular':
-                return $name;
             case 'zfcampus/zf-composer-autoloading':
                 return 'laminas/laminas-composer-autoloading';
-            case 'zfcampus/zf-console':
-                return $name;
             case 'zfcampus/zf-deploy':
                 return 'laminas/laminas-deploy';
             case 'zfcampus/zf-development-mode':
                 return 'laminas/laminas-development-mode';
+            // All other packages:
             default:
                 if (preg_match('#^zendframework/zend-expressive-(?<name>.*)$#', $name, $matches)) {
                     return sprintf('expressive/expressive-%s', $matches['name']);
