@@ -123,9 +123,14 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
                 $name,
                 $replacementName
             ), IOInterface::VERBOSE);
+
             $job['packageName'] = $replacementName;
-            $jobs[$index] = $job;
-            $changes = true;
+            $jobs[$index]       = $job;
+            $changes            = true;
+        }
+
+        if (! $changes) {
+            return;
         }
 
         $this->updateProperty($request, 'jobs', $jobs);
@@ -260,10 +265,18 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
                 return 'expressive/expressive';
             case 'zendframework/zend-problem-details':
                 return 'expressive/expressive-problem-details';
+            case 'zendframework/zend-version':
+                return $name;
             case 'zfcampus/zf-apigilty':
                 return 'apigility/apigility';
+            case 'zfcampus/zf-apigilty-example':
+                return $name;
+            case 'zfcampus/zf-angular':
+                return $name;
             case 'zfcampus/zf-composer-autoloading':
                 return 'laminas/laminas-composer-autoloading';
+            case 'zfcampus/zf-console':
+                return $name;
             case 'zfcampus/zf-deploy':
                 return 'laminas/laminas-deploy';
             case 'zfcampus/zf-development-mode':
