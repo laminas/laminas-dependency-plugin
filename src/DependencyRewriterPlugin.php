@@ -5,8 +5,6 @@
  * @license   https://github.com/laminas/laminas-dependency-plugin/blob/master/LICENSE.md New BSD License
  */
 
-declare(strict_types=1);
-
 namespace Laminas\DependencyPlugin;
 
 use Composer\Composer;
@@ -45,7 +43,10 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     /** IOInterface */
     private $io;
 
-    public static function getSubscribedEvents() : array
+    /**
+     * @return array<string, array<string, int>>
+     */
+    public static function getSubscribedEvents()
     {
         return [
             InstallerEvents::PRE_DEPENDENCIES_SOLVING => ['onPreDependenciesSolving', 1000],
@@ -54,7 +55,10 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         ];
     }
 
-    public function activate(Composer $composer, IOInterface $io) : void
+    /**
+     * @return void
+     */
+    public function activate(Composer $composer, IOInterface $io)
     {
         $this->composer = $composer;
         $this->io = $io;
@@ -68,8 +72,10 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
      * this listener will replace the argument with the equivalent Laminas
      * package. This ensures that the `composer.json` file is written to
      * reflect the package installed.
+     *
+     * @return void
      */
-    public function onPreCommandRun(PreCommandRunEvent $event) : void
+    public function onPreCommandRun(PreCommandRunEvent $event)
     {
         if ('require' !== $event->getCommand()) {
             // Nothing to do here.
@@ -91,8 +97,10 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
      * requests an `install` or `update`, this method will rewrite any such
      * packages to their Laminas equivalents prior to attempting to resolve
      * dependencies, ensuring the Laminas versions are installed.
+     *
+     * @return void
      */
-    public function onPreDependenciesSolving(InstallerEvent $event) : void
+    public function onPreDependenciesSolving(InstallerEvent $event)
     {
         $this->output(sprintf('<info>In %s</info>', __METHOD__), IOInterface::DEBUG);
         $request = $event->getRequest();
@@ -142,8 +150,10 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
      * When a 3rd party package has dependencies on ZF packages, this method
      * will detect the request to install a ZF package, and rewrite it to use a
      * Laminas variant at the equivalent version, if one exists.
+     *
+     * @return void
      */
-    public function onPrePackageInstall(PackageEvent $event) : void
+    public function onPrePackageInstall(PackageEvent $event)
     {
         $this->output(sprintf('<info>In %s</info>', __METHOD__), IOInterface::DEBUG);
         $operation = $event->getOperation();
@@ -210,8 +220,12 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     /**
      * Parses a package argument from the command line, replacing it with the
      * Laminas variant if it exists.
+     *
+     * @param string $package Package specification from command line
+     * @return string Modified package specification containing Laminas
+     *     substitution, or original if no changes required.
      */
-    private function updatePackageArgument(string $package) : string
+    private function updatePackageArgument($package)
     {
         $result = preg_split('/[ :=]/', $package, 2);
         if (false === $result) {
@@ -233,7 +247,11 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         return sprintf('%s:%s', $replacementName, $version);
     }
 
-    private function isZendPackage(string $name) : bool
+    /**
+     * @param string $name Original package name
+     * @return bool
+     */
+    private function isZendPackage($name)
     {
         if (! preg_match('#^(zendframework|zfcampus)/#', $name)
             || in_array($name, $this->ignore, true)
@@ -244,7 +262,11 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         return true;
     }
 
-    private function transformPackageName(string $name) : string
+    /**
+     * @param string $name Original package name
+     * @return string Transformed (or original) package name
+     */
+    private function transformPackageName($name)
     {
         switch ($name) {
             // Packages without replacements:
@@ -298,6 +320,9 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         }
     }
 
+    /**
+     * @return void
+     */
     private function updatePackageFromReplacement(PackageInterface $original, PackageInterface $replacement)
     {
         $this->updateProperty($original, 'name', $replacement->getName());
@@ -306,16 +331,24 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     }
 
     /**
+     * @param object $object
+     * @param string $property
      * @param mixed $value
+     * @return void
      */
-    private function updateProperty(object $object, string $property, $value) : void
+    private function updateProperty($object, $property, $value)
     {
         $r = new ReflectionProperty($object, $property);
         $r->setAccessible(true);
         $r->setValue($object, $value);
     }
 
-    private function output(string $message, int $verbosity = IOInterface::NORMAL) : void
+    /**
+     * @param string $message
+     * @param int $verbosity
+     * @return void
+     */
+    private function output($message, $verbosity = IOInterface::NORMAL)
     {
         $this->io->write($message, $newline = true, $verbosity);
     }
