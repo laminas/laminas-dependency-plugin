@@ -11,14 +11,31 @@ env:
 
 matrix:
   include:
+    - php: 5.6
+      env:
+        - COMPAT_VERSION=5.6
+        - NO_TEST=1
+    - php: 7.0
+      env:
+        - COMPAT_VERSION=7.0
+        - NO_TEST=1
     - php: 7.1
+      env:
+        - COMPAT_VERSION=7.1
+        - NO_TEST=1
     - php: 7.2
       env:
         - TEST_COVERAGE=true
+        - COMPAT_VERSION=7.2
     - php: 7.3
+      env:
+        - COMPAT_VERSION=7.3
+        - CS_CHECK=1
     - php: 7.4snapshot
   allow_failures:
     - php: 7.4snapshot
+      env:
+        - COMPAT_VERSION=7.4
 
 before_install:
   - if [[ $TEST_COVERAGE != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
@@ -29,7 +46,9 @@ install:
   - stty cols 120 && composer show
 
 script:
-  - if [[ $TEST_COVERAGE == 'true' ]]; then composer test-coverage ; else composer test ; fi
+  - if [[ $TEST_COVERAGE == 'true' ]]; then composer test-coverage ; else if [[ $NO_TEST != '1' ]]; then  composer test ; fi ; fi
+  - if [[ $COMPAT_VERSION != '0' ]]; then composer cs-check -- -p src --standard=PHPCompatibility --runtime-set $COMPAT_VERSION ; fi
+  - if [[ $CS_CHECK == '1' ]]; then composer cs-check ; fi
 
 after_script:
   - if [[ $TEST_COVERAGE == 'true' ]]; then vendor/bin/php-coveralls -v ; fi
