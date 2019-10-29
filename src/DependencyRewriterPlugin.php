@@ -6,8 +6,6 @@
  * @license   https://github.com/laminas/laminas-dependency-plugin/blob/master/LICENSE.md New BSD License
  */
 
-declare(strict_types=1);
-
 namespace Laminas\DependencyPlugin;
 
 use Composer\Composer;
