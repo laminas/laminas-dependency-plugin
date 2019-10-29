@@ -3,3 +3,4 @@
 /laminas-mkdoc-theme.tgz
 /laminas-mkdoc-theme/
 /.phpunit.result.cache
+/composer.lock

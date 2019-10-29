@@ -7,4 +7,8 @@
     <file>test</file>
 
     <exclude-pattern>test/*/TestAsset/</exclude-pattern>
+
+    <rule ref="WebimpressCodingStandard.PHP.DeclareStrictTypes">
+        <exclude-pattern>src/DependencyRewriterPlugin.php</exclude-pattern>
+    </rule>
 </ruleset>
