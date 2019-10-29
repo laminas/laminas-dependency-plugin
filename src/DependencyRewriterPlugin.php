@@ -1,9 +1,12 @@
 <?php
+
 /**
  * @see       https://github.com/laminas/laminas-dependency-plugin for the canonical source repository
  * @copyright https://github.com/laminas/laminas-dependency-plugin/blob/master/COPYRIGHT.md
  * @license   https://github.com/laminas/laminas-dependency-plugin/blob/master/LICENSE.md New BSD License
  */
+
+declare(strict_types=1);
 
 namespace Laminas\DependencyPlugin;
 
@@ -32,7 +35,7 @@ use function sprintf;
 
 class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterface
 {
-    /** Composer */
+    /** @var Composer */
     private $composer;
 
     /** @var string[] */
@@ -40,11 +43,12 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         'zfcampus/zf-console',
     ];
 
-    /** IOInterface */
+    /** @var IOInterface */
     private $io;
 
     /**
-     * @return array<string, array<string, int>>
+     * @return array Returns in following format:
+     *     <string> => array<string, int>
      */
     public static function getSubscribedEvents()
     {
@@ -55,9 +59,6 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         ];
     }
 
-    /**
-     * @return void
-     */
     public function activate(Composer $composer, IOInterface $io)
     {
         $this->composer = $composer;
@@ -72,8 +73,6 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
      * this listener will replace the argument with the equivalent Laminas
      * package. This ensures that the `composer.json` file is written to
      * reflect the package installed.
-     *
-     * @return void
      */
     public function onPreCommandRun(PreCommandRunEvent $event)
     {
@@ -97,8 +96,6 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
      * requests an `install` or `update`, this method will rewrite any such
      * packages to their Laminas equivalents prior to attempting to resolve
      * dependencies, ensuring the Laminas versions are installed.
-     *
-     * @return void
      */
     public function onPreDependenciesSolving(InstallerEvent $event)
     {
@@ -133,8 +130,8 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
             ), IOInterface::VERBOSE);
 
             $job['packageName'] = $replacementName;
-            $jobs[$index]       = $job;
-            $changes            = true;
+            $jobs[$index] = $job;
+            $changes = true;
         }
 
         if (! $changes) {
@@ -150,8 +147,6 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
      * When a 3rd party package has dependencies on ZF packages, this method
      * will detect the request to install a ZF package, and rewrite it to use a
      * Laminas variant at the equivalent version, if one exists.
-     *
-     * @return void
      */
     public function onPrePackageInstall(PackageEvent $event)
     {
@@ -320,9 +315,6 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         }
     }
 
-    /**
-     * @return void
-     */
     private function updatePackageFromReplacement(PackageInterface $original, PackageInterface $replacement)
     {
         $this->updateProperty($original, 'name', $replacement->getName());
@@ -334,7 +326,6 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
      * @param object $object
      * @param string $property
      * @param mixed $value
-     * @return void
      */
     private function updateProperty($object, $property, $value)
     {
@@ -346,7 +337,6 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     /**
      * @param string $message
      * @param int $verbosity
-     * @return void
      */
     private function output($message, $verbosity = IOInterface::NORMAL)
     {

@@ -26,6 +26,8 @@ use Prophecy\Prophecy\ObjectProphecy;
 use ReflectionProperty;
 use Symfony\Component\Console\Input\InputInterface;
 
+use function get_class;
+
 class DependencyRewriterPluginTest extends TestCase
 {
     /** @var Composer|ObjectProphecy */
@@ -40,19 +42,19 @@ class DependencyRewriterPluginTest extends TestCase
     public function setUp() : void
     {
         $this->composer = $this->prophesize(Composer::class);
-        $this->io       = $this->prophesize(IOInterface::class);
-        $this->plugin   = new DependencyRewriterPlugin();
+        $this->io = $this->prophesize(IOInterface::class);
+        $this->plugin = new DependencyRewriterPlugin();
     }
 
     public function activatePlugin(DependencyRewriterPlugin $plugin) : void
     {
         $this->io
-            ->write(
-                Argument::containingString('Activating Laminas\DependencyPlugin\DependencyRewriterPlugin'),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString('Activating Laminas\DependencyPlugin\DependencyRewriterPlugin'),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $plugin->activate($this->composer->reveal(), $this->io->reveal());
     }
@@ -128,7 +130,7 @@ class DependencyRewriterPluginTest extends TestCase
     {
         $this->activatePlugin($this->plugin);
 
-        $event   = $this->prophesize(InstallerEvent::class);
+        $event = $this->prophesize(InstallerEvent::class);
         $request = $this->prophesize(Request::class);
         $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
 
@@ -140,22 +142,22 @@ class DependencyRewriterPluginTest extends TestCase
             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString('Replacing package'),
-                true,
-                IOInterface::VERBOSE
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString('Replacing package'),
+                 true,
+                 IOInterface::VERBOSE
+             )
+             ->shouldNotBeCalled();
 
         $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
     }
@@ -164,7 +166,7 @@ class DependencyRewriterPluginTest extends TestCase
     {
         $this->activatePlugin($this->plugin);
 
-        $event   = $this->prophesize(InstallerEvent::class);
+        $event = $this->prophesize(InstallerEvent::class);
         $request = $this->prophesize(Request::class);
         $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
 
@@ -176,22 +178,22 @@ class DependencyRewriterPluginTest extends TestCase
             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString('Replacing package'),
-                true,
-                IOInterface::VERBOSE
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString('Replacing package'),
+                 true,
+                 IOInterface::VERBOSE
+             )
+             ->shouldNotBeCalled();
 
         $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
     }
@@ -200,7 +202,7 @@ class DependencyRewriterPluginTest extends TestCase
     {
         $this->activatePlugin($this->plugin);
 
-        $event   = $this->prophesize(InstallerEvent::class);
+        $event = $this->prophesize(InstallerEvent::class);
         $request = $this->prophesize(Request::class);
         $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
 
@@ -208,29 +210,29 @@ class DependencyRewriterPluginTest extends TestCase
             ->getJobs()
             ->willReturn([
                 [
-                    'cmd'         => 'install',
+                    'cmd' => 'install',
                     'packageName' => 'symfony/console',
                 ],
             ])
             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString('Replacing package'),
-                true,
-                IOInterface::VERBOSE
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString('Replacing package'),
+                 true,
+                 IOInterface::VERBOSE
+             )
+             ->shouldNotBeCalled();
 
         $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
     }
@@ -239,7 +241,7 @@ class DependencyRewriterPluginTest extends TestCase
     {
         $this->activatePlugin($this->plugin);
 
-        $event   = $this->prophesize(InstallerEvent::class);
+        $event = $this->prophesize(InstallerEvent::class);
         $request = $this->prophesize(Request::class);
         $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
 
@@ -247,29 +249,29 @@ class DependencyRewriterPluginTest extends TestCase
             ->getJobs()
             ->willReturn([
                 [
-                    'cmd'         => 'install',
+                    'cmd' => 'install',
                     'packageName' => 'zendframework/zend-version',
                 ],
             ])
             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString('Replacing package'),
-                true,
-                IOInterface::VERBOSE
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString('Replacing package'),
+                 true,
+                 IOInterface::VERBOSE
+             )
+             ->shouldNotBeCalled();
 
         $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
     }
@@ -283,49 +285,49 @@ class DependencyRewriterPluginTest extends TestCase
         $request->update('zendframework/zend-expressive-template');
         $request->update('zfcampus/zf-apigility');
 
-        $event   = $this->prophesize(InstallerEvent::class);
+        $event = $this->prophesize(InstallerEvent::class);
         $event->getRequest()->willReturn($request)->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Replacing package "zendframework/zend-form" with package "laminas/laminas-form"'
-                ),
-                true,
-                IOInterface::VERBOSE
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Replacing package "zendframework/zend-form" with package "laminas/laminas-form"'
+                 ),
+                 true,
+                 IOInterface::VERBOSE
+             )
+             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Replacing package "zendframework/zend-expressive-template" with'
-                    . ' package "expressive/expressive-template"'
-                ),
-                true,
-                IOInterface::VERBOSE
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Replacing package "zendframework/zend-expressive-template" with'
+                     . ' package "expressive/expressive-template"'
+                 ),
+                 true,
+                 IOInterface::VERBOSE
+             )
+             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Replacing package "zfcampus/zf-apigility" with package "apigility/apigility-apigility"'
-                ),
-                true,
-                IOInterface::VERBOSE
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Replacing package "zfcampus/zf-apigility" with package "apigility/apigility-apigility"'
+                 ),
+                 true,
+                 IOInterface::VERBOSE
+             )
+             ->shouldBeCalled();
 
         $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
 
@@ -336,22 +338,22 @@ class DependencyRewriterPluginTest extends TestCase
         $this->assertSame(
             [
                 [
-                    'cmd'         => 'install',
+                    'cmd' => 'install',
                     'packageName' => 'laminas/laminas-form',
-                    'constraint'  => null,
-                    'fixed'       => false,
+                    'constraint' => null,
+                    'fixed' => false,
                 ],
                 [
-                    'cmd'         => 'update',
+                    'cmd' => 'update',
                     'packageName' => 'expressive/expressive-template',
-                    'constraint'  => null,
-                    'fixed'       => false,
+                    'constraint' => null,
+                    'fixed' => false,
                 ],
                 [
-                    'cmd'         => 'update',
+                    'cmd' => 'update',
                     'packageName' => 'apigility/apigility-apigility',
-                    'constraint'  => null,
-                    'fixed'       => false,
+                    'constraint' => null,
+                    'fixed' => false,
                 ],
             ],
             $jobs
@@ -362,30 +364,30 @@ class DependencyRewriterPluginTest extends TestCase
     {
         $this->activatePlugin($this->plugin);
 
-        $event     = $this->prophesize(PackageEvent::class);
+        $event = $this->prophesize(PackageEvent::class);
         $operation = $this->prophesize(Operation\UninstallOperation::class);
 
         $event->getOperation()->will([$operation, 'reveal'])->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->assertNull($this->plugin->onPrePackageInstall($event->reveal()));
     }
@@ -394,43 +396,43 @@ class DependencyRewriterPluginTest extends TestCase
     {
         $this->activatePlugin($this->plugin);
 
-        $event     = $this->prophesize(PackageEvent::class);
+        $event = $this->prophesize(PackageEvent::class);
         $operation = $this->prophesize(Operation\InstallOperation::class);
-        $package   = $this->prophesize(PackageInterface::class);
+        $package = $this->prophesize(PackageInterface::class);
 
         $event->getOperation()->will([$operation, 'reveal'])->shouldBeCalled();
         $operation->getPackage()->will([$package, 'reveal'])->shouldBeCalled();
         $package->getName()->willReturn('symfony/console')->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldNotBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; package "symfony/console" does not have a replacement'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; package "symfony/console" does not have a replacement'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->assertNull($this->plugin->onPrePackageInstall($event->reveal()));
     }
@@ -439,54 +441,54 @@ class DependencyRewriterPluginTest extends TestCase
     {
         $this->activatePlugin($this->plugin);
 
-        $event     = $this->prophesize(PackageEvent::class);
+        $event = $this->prophesize(PackageEvent::class);
         $operation = $this->prophesize(Operation\UpdateOperation::class);
-        $package   = $this->prophesize(PackageInterface::class);
+        $package = $this->prophesize(PackageInterface::class);
 
         $event->getOperation()->will([$operation, 'reveal'])->shouldBeCalled();
         $operation->getTargetPackage()->will([$package, 'reveal'])->shouldBeCalled();
         $package->getName()->willReturn('zendframework/zend-version')->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldNotBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; package "zendframework/zend-version" does not have a replacement'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; package "zendframework/zend-version" does not have a replacement'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldNotBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; while package "zendframework/zend-version" is a ZF package,'
-                    . ' it does not have a replacement'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; while package "zendframework/zend-version" is a ZF package,'
+                     . ' it does not have a replacement'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->assertNull($this->plugin->onPrePackageInstall($event->reveal()));
     }
@@ -495,9 +497,9 @@ class DependencyRewriterPluginTest extends TestCase
     {
         $this->activatePlugin($this->plugin);
 
-        $event             = $this->prophesize(PackageEvent::class);
-        $operation         = $this->prophesize(Operation\UpdateOperation::class);
-        $package           = $this->prophesize(PackageInterface::class);
+        $event = $this->prophesize(PackageEvent::class);
+        $operation = $this->prophesize(Operation\UpdateOperation::class);
+        $package = $this->prophesize(PackageInterface::class);
         $repositoryManager = $this->prophesize(RepositoryManager::class);
 
         $event->getOperation()->will([$operation, 'reveal'])->shouldBeCalled();
@@ -511,55 +513,55 @@ class DependencyRewriterPluginTest extends TestCase
             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldNotBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; package "zendframework/zend-version" does not have a replacement'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; package "zendframework/zend-version" does not have a replacement'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldNotBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; while package "zendframework/zend-version" is a ZF package,'
-                    . ' it does not have a replacement'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; while package "zendframework/zend-version" is a ZF package,'
+                     . ' it does not have a replacement'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldNotBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; no replacement package found for package "laminas/laminas-mvc" with version 4.0.0'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; no replacement package found for package "laminas/laminas-mvc" with version 4.0.0'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->assertNull($this->plugin->onPrePackageInstall($event->reveal()));
     }
@@ -568,11 +570,11 @@ class DependencyRewriterPluginTest extends TestCase
     {
         $this->activatePlugin($this->plugin);
 
-        $event              = $this->prophesize(PackageEvent::class);
-        $operation          = $this->prophesize(Operation\UpdateOperation::class);
-        $package            = new Package('zendframework/zend-mvc', '3.1.1', '3.1.1');
+        $event = $this->prophesize(PackageEvent::class);
+        $operation = $this->prophesize(Operation\UpdateOperation::class);
+        $package = new Package('zendframework/zend-mvc', '3.1.1', '3.1.1');
         $replacementPackage = new Package('laminas/laminas-mvc', '3.1.1', '3.1.1');
-        $repositoryManager  = $this->prophesize(RepositoryManager::class);
+        $repositoryManager = $this->prophesize(RepositoryManager::class);
 
         $event->getOperation()->will([$operation, 'reveal'])->shouldBeCalled();
         $operation->getTargetPackage()->willReturn($package)->shouldBeCalled();
@@ -583,65 +585,65 @@ class DependencyRewriterPluginTest extends TestCase
             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldNotBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; package "zendframework/zend-version" does not have a replacement'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; package "zendframework/zend-version" does not have a replacement'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldNotBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; while package "zendframework/zend-version" is a ZF package,'
-                    . ' it does not have a replacement'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; while package "zendframework/zend-version" is a ZF package,'
+                     . ' it does not have a replacement'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldNotBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Exiting; no replacement package found for package "laminas/laminas-mvc"'
-                ),
-                true,
-                IOInterface::DEBUG
-            )
-            ->shouldNotBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Exiting; no replacement package found for package "laminas/laminas-mvc"'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldNotBeCalled();
 
         $this->io
-            ->write(
-                Argument::containingString(
-                    'Replacing package zendframework/zend-mvc with package laminas/laminas-mvc, using version 3.1.1'
-                ),
-                true,
-                IOInterface::VERBOSE
-            )
-            ->shouldBeCalled();
+             ->write(
+                 Argument::containingString(
+                     'Replacing package zendframework/zend-mvc with package laminas/laminas-mvc, using version 3.1.1'
+                 ),
+                 true,
+                 IOInterface::VERBOSE
+             )
+             ->shouldBeCalled();
 
         $this->assertNull($this->plugin->onPrePackageInstall($event->reveal()));
         $this->assertSame('laminas/laminas-mvc', $package->getName());
