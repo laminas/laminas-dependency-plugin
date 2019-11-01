@@ -571,13 +571,14 @@ class DependencyRewriterPluginTest extends TestCase
         $this->activatePlugin($this->plugin);
 
         $event = $this->prophesize(PackageEvent::class);
-        $operation = $this->prophesize(Operation\UpdateOperation::class);
+        $original = new Package('zendframework/zend-mvc', '3.1.0', '3.1.1');
         $package = new Package('zendframework/zend-mvc', '3.1.1', '3.1.1');
+        $operation = new Operation\UpdateOperation($original, $package);
+
         $replacementPackage = new Package('laminas/laminas-mvc', '3.1.1', '3.1.1');
         $repositoryManager = $this->prophesize(RepositoryManager::class);
 
-        $event->getOperation()->will([$operation, 'reveal'])->shouldBeCalled();
-        $operation->getTargetPackage()->willReturn($package)->shouldBeCalled();
+        $event->getOperation()->willReturn($operation)->shouldBeCalled();
         $this->composer->getRepositoryManager()->will([$repositoryManager, 'reveal'])->shouldBeCalled();
         $repositoryManager
             ->findPackage('laminas/laminas-mvc', '3.1.1')
@@ -597,7 +598,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->io
              ->write(
                  Argument::containingString(
-                     'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
+                     'Exiting; operation of type ' . get_class($operation) . ' not supported'
                  ),
                  true,
                  IOInterface::DEBUG
@@ -646,9 +647,6 @@ class DependencyRewriterPluginTest extends TestCase
              ->shouldBeCalled();
 
         $this->assertNull($this->plugin->onPrePackageInstall($event->reveal()));
-        $this->assertSame('laminas/laminas-mvc', $package->getName());
-        $this->assertSame('laminas/laminas-mvc', $package->getPrettyName());
-        $this->assertSame('3.1.1', $package->getVersion());
-        $this->assertSame('3.1.1', $package->getPrettyVersion());
+        $this->assertSame($replacementPackage, $operation->getTargetPackage());
     }
 }

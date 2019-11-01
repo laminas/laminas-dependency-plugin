@@ -207,7 +207,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
             $version
         ), IOInterface::VERBOSE);
 
-        $this->updatePackageFromReplacement($package, $replacementPackage);
+        $this->replacePackageInOperation($replacementPackage, $operation);
     }
 
     /**
@@ -313,11 +313,13 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         }
     }
 
-    private function updatePackageFromReplacement(PackageInterface $original, PackageInterface $replacement)
+    private function replacePackageInOperation(PackageInterface $replacement, Operation\OperationInterface $operation)
     {
-        $this->updateProperty($original, 'name', $replacement->getName());
-        $this->updateProperty($original, 'prettyName', $replacement->getPrettyName());
-        $original->replaceVersion($replacement->getVersion(), $replacement->getPrettyVersion());
+        $this->updateProperty(
+            $operation,
+            $operation instanceof Operation\UpdateOperation ? 'targetPackage' : 'package',
+            $replacement
+        );
     }
 
     /**
