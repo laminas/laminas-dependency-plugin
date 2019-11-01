@@ -2,6 +2,28 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
+## 0.1.3 - 2019-11-01
+
+### Added
+
+- Nothing.
+
+### Changed
+
+- Nothing.
+
+### Deprecated
+
+- Nothing.
+
+### Removed
+
+- Nothing.
+
+### Fixed
+
+- [#2](https://github.com/laminas/laminas-dependency-plugin/pull/2) fixes how package replacements are slip-streamed in, ensuring nested dependencies use the correct packages. Previously, Composer would report the replacement, but the original ZF package would actually be installed.
+
 ## 0.1.2 - 2019-10-29
 
 ### Added
