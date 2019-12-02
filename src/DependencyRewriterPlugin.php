@@ -284,11 +284,11 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
             case 'zendframework/zendxml':
                 return 'laminas/laminas-xml';
             case 'zendframework/zend-expressive':
-                return 'expressive/expressive';
+                return 'mezzio/mezzio';
             case 'zendframework/zend-problem-details':
-                return 'expressive/expressive-problem-details';
-            case 'zfcampus/zf-apigilty':
-                return 'apigility/apigility';
+                return 'mezzio/mezzio-problem-details';
+            case 'zfcampus/zf-apigility':
+                return 'laminas-api-tools/api-tools';
             case 'zfcampus/zf-composer-autoloading':
                 return 'laminas/laminas-composer-autoloading';
             case 'zfcampus/zf-deploy':
@@ -298,13 +298,13 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
             // All other packages:
             default:
                 if (preg_match('#^zendframework/zend-expressive-(?<name>.*)$#', $name, $matches)) {
-                    return sprintf('expressive/expressive-%s', $matches['name']);
+                    return sprintf('mezzio/mezzio-%s', $matches['name']);
                 }
                 if (preg_match('#^zfcampus/zf-apigility-(?<name>.*)$#', $name, $matches)) {
-                    return sprintf('apigility/apigility-%s', $matches['name']);
+                    return sprintf('laminas-api-tools/api-tools-%s', $matches['name']);
                 }
                 if (preg_match('#^zfcampus/zf-(?<name>.*)$#', $name, $matches)) {
-                    return sprintf('apigility/apigility-%s', $matches['name']);
+                    return sprintf('laminas-api-tools/api-tools-%s', $matches['name']);
                 }
                 if (preg_match('#^zendframework/zend-(?<name>.*)$#', $name, $matches)) {
                     return sprintf('laminas/laminas-%s', $matches['name']);

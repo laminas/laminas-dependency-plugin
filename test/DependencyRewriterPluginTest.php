@@ -115,8 +115,8 @@ class DependencyRewriterPluginTest extends TestCase
                 'packages',
                 [
                     'laminas/laminas-form',
-                    'apigility/apigility-content-negotiation',
-                    'expressive/expressive-hal',
+                    'laminas-api-tools/api-tools-content-negotiation',
+                    'mezzio/mezzio-hal',
                 ]
             )
             ->shouldBeCalled();
@@ -312,7 +312,7 @@ class DependencyRewriterPluginTest extends TestCase
              ->write(
                  Argument::containingString(
                      'Replacing package "zendframework/zend-expressive-template" with'
-                     . ' package "expressive/expressive-template"'
+                     . ' package "mezzio/mezzio-template"'
                  ),
                  true,
                  IOInterface::VERBOSE
@@ -322,7 +322,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->io
              ->write(
                  Argument::containingString(
-                     'Replacing package "zfcampus/zf-apigility" with package "apigility/apigility-apigility"'
+                     'Replacing package "zfcampus/zf-apigility" with package "laminas-api-tools/api-tools"'
                  ),
                  true,
                  IOInterface::VERBOSE
@@ -345,13 +345,13 @@ class DependencyRewriterPluginTest extends TestCase
                 ],
                 [
                     'cmd' => 'update',
-                    'packageName' => 'expressive/expressive-template',
+                    'packageName' => 'mezzio/mezzio-template',
                     'constraint' => null,
                     'fixed' => false,
                 ],
                 [
                     'cmd' => 'update',
-                    'packageName' => 'apigility/apigility-apigility',
+                    'packageName' => 'laminas-api-tools/api-tools',
                     'constraint' => null,
                     'fixed' => false,
                 ],
