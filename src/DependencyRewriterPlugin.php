@@ -80,7 +80,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
      */
     public function onPreCommandRun(PreCommandRunEvent $event)
     {
-        if ('require' !== $event->getCommand()) {
+        if ($event->getCommand() !== 'require') {
             // Nothing to do here.
             return;
         }
@@ -196,7 +196,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         $version = $package->getVersion();
         $replacementPackage = $this->composer->getRepositoryManager()->findPackage($replacementName, $version);
 
-        if (null === $replacementPackage) {
+        if ($replacementPackage === null) {
             // No matching replacement package found
             $this->output(sprintf(
                 '<info>Exiting; no replacement package found for package "%s" with version %s</info>',
@@ -227,7 +227,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     private function updatePackageArgument($package)
     {
         $result = preg_split('/[ :=]/', $package, 2);
-        if (false === $result) {
+        if ($result = false) {
             return $package;
         }
         $name = array_shift($result);
@@ -239,7 +239,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         $replacementName = $this->transformPackageName($name);
         $version = count($result) ? array_shift($result) : null;
 
-        if (null === $version) {
+        if ($version === null) {
             return $replacementName;
         }
 
