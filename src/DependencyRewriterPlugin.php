@@ -252,9 +252,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
      */
     private function isZendPackage($name)
     {
-        if (! preg_match('#^(zendframework|zfcampus)/#', $name)
-            || in_array($name, $this->ignore, true)
-        ) {
+        if (! preg_match('#^(zendframework|zfcampus)/#', $name)) {
             return false;
         }
 
