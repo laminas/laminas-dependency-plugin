@@ -38,7 +38,13 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
 
     /** @var string[] */
     private $ignore = [
+        'zendframework/zend-version',
+        'zendframework/zendservice-apple-apns',
+        'zendframework/zendservice-google-gcm',
+        'zfcampus/zf-apigility-example',
+        'zfcampus/zf-angular',
         'zfcampus/zf-console',
+        'zfcampus/zf-deploy',
     ];
 
     /** @var IOInterface */
@@ -74,7 +80,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
      */
     public function onPreCommandRun(PreCommandRunEvent $event)
     {
-        if ('require' !== $event->getCommand()) {
+        if ($event->getCommand() !== 'require') {
             // Nothing to do here.
             return;
         }
@@ -190,7 +196,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         $version = $package->getVersion();
         $replacementPackage = $this->composer->getRepositoryManager()->findPackage($replacementName, $version);
 
-        if (null === $replacementPackage) {
+        if ($replacementPackage === null) {
             // No matching replacement package found
             $this->output(sprintf(
                 '<info>Exiting; no replacement package found for package "%s" with version %s</info>',
@@ -221,7 +227,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     private function updatePackageArgument($package)
     {
         $result = preg_split('/[ :=]/', $package, 2);
-        if (false === $result) {
+        if ($result = false) {
             return $package;
         }
         $name = array_shift($result);
@@ -233,7 +239,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         $replacementName = $this->transformPackageName($name);
         $version = count($result) ? array_shift($result) : null;
 
-        if (null === $version) {
+        if ($version === null) {
             return $replacementName;
         }
 
@@ -246,9 +252,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
      */
     private function isZendPackage($name)
     {
-        if (! preg_match('#^(zendframework|zfcampus)/#', $name)
-            || in_array($name, $this->ignore, true)
-        ) {
+        if (! preg_match('#^(zendframework|zfcampus)/#', $name)) {
             return false;
         }
 
@@ -263,20 +267,13 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     {
         switch ($name) {
             // Packages without replacements:
-            case 'zendframework/zend-version':
-            case 'zfcampus/zf-apigilty-example':
-            case 'zfcampus/zf-angular':
-            case 'zfcampus/zf-console':
+            case in_array($name, $this->ignore, true):
                 return $name;
             // Packages with non-standard naming:
             case 'zendframework/zenddiagnostics':
                 return 'laminas/laminas-diagnostics';
             case 'zendframework/zendoauth':
                 return 'laminas/laminas-oauth';
-            case 'zendframework/zendservice-apple-apns':
-                return 'laminas/laminas-apple-apns';
-            case 'zendframework/zendservice-google-gcm':
-                return 'laminas/laminas-google-gcm';
             case 'zendframework/zendservice-recaptcha':
                 return 'laminas/laminas-recaptcha';
             case 'zendframework/zendservice-twitter':
@@ -291,8 +288,6 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
                 return 'laminas-api-tools/api-tools';
             case 'zfcampus/zf-composer-autoloading':
                 return 'laminas/laminas-composer-autoloading';
-            case 'zfcampus/zf-deploy':
-                return 'laminas/laminas-deploy';
             case 'zfcampus/zf-development-mode':
                 return 'laminas/laminas-development-mode';
             // All other packages:

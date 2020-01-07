@@ -24,7 +24,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 - Nothing.
 
-## 1.0.1 - TBD
+## 1.0.1 - 2020-01-07
 
 ### Added
 
@@ -44,7 +44,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#7](https://github.com/laminas/laminas-dependency-plugin/pull/7) adds exclusions for zendframework/zend-version, zendframework/zendservice-apple-apns, zendframework/zendservice-google-gcm, zfcampus/zf-apigility-example, zfcampus/zf-angular, and zfcampus/zf-deploy, as none of these packages were migrated to Laminas.
 
 ## 1.0.0 - 2019-12-31
 
