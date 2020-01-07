@@ -24,7 +24,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 - Nothing.
 
-## 1.0.2 - TBD
+## 1.0.2 - 2020-01-07
 
 ### Added
 
@@ -44,7 +44,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#10](https://github.com/laminas/laminas-dependency-plugin/pull/10) fixes a bad comparison in the `DependecyRewriterPlugin.
 
 ## 1.0.1 - 2020-01-07
 

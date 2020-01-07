@@ -227,7 +227,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     private function updatePackageArgument($package)
     {
         $result = preg_split('/[ :=]/', $package, 2);
-        if ($result = false) {
+        if ($result === false) {
             return $package;
         }
         $name = array_shift($result);
