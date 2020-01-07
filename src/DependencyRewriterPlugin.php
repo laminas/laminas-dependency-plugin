@@ -38,7 +38,13 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
 
     /** @var string[] */
     private $ignore = [
+        'zendframework/zend-version',
+        'zendframework/zendservice-apple-apns',
+        'zendframework/zendservice-google-gcm',
+        'zfcampus/zf-apigilty-example',
+        'zfcampus/zf-angular',
         'zfcampus/zf-console',
+        'zfcampus/zf-deploy',
     ];
 
     /** @var IOInterface */
@@ -264,19 +270,18 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         switch ($name) {
             // Packages without replacements:
             case 'zendframework/zend-version':
+            case 'zendframework/zendservice-apple-apns':
+            case 'zendframework/zendservice-google-gcm':
             case 'zfcampus/zf-apigilty-example':
             case 'zfcampus/zf-angular':
             case 'zfcampus/zf-console':
+            case 'zfcampus/zf-deploy':
                 return $name;
             // Packages with non-standard naming:
             case 'zendframework/zenddiagnostics':
                 return 'laminas/laminas-diagnostics';
             case 'zendframework/zendoauth':
                 return 'laminas/laminas-oauth';
-            case 'zendframework/zendservice-apple-apns':
-                return 'laminas/laminas-apple-apns';
-            case 'zendframework/zendservice-google-gcm':
-                return 'laminas/laminas-google-gcm';
             case 'zendframework/zendservice-recaptcha':
                 return 'laminas/laminas-recaptcha';
             case 'zendframework/zendservice-twitter':
@@ -291,8 +296,6 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
                 return 'laminas-api-tools/api-tools';
             case 'zfcampus/zf-composer-autoloading':
                 return 'laminas/laminas-composer-autoloading';
-            case 'zfcampus/zf-deploy':
-                return 'laminas/laminas-deploy';
             case 'zfcampus/zf-development-mode':
                 return 'laminas/laminas-development-mode';
             // All other packages:
