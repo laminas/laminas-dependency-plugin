@@ -41,7 +41,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         'zendframework/zend-version',
         'zendframework/zendservice-apple-apns',
         'zendframework/zendservice-google-gcm',
-        'zfcampus/zf-apigilty-example',
+        'zfcampus/zf-apigility-example',
         'zfcampus/zf-angular',
         'zfcampus/zf-console',
         'zfcampus/zf-deploy',
