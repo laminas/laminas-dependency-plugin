@@ -267,13 +267,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     {
         switch ($name) {
             // Packages without replacements:
-            case 'zendframework/zend-version':
-            case 'zendframework/zendservice-apple-apns':
-            case 'zendframework/zendservice-google-gcm':
-            case 'zfcampus/zf-apigilty-example':
-            case 'zfcampus/zf-angular':
-            case 'zfcampus/zf-console':
-            case 'zfcampus/zf-deploy':
+            case in_array($name, $this->ignore, true):
                 return $name;
             // Packages with non-standard naming:
             case 'zendframework/zenddiagnostics':
