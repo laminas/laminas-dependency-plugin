@@ -38,6 +38,7 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
 
     /** @var string[] */
     private $ignore = [
+        'zendframework/zend-debug',
         'zendframework/zend-version',
         'zendframework/zendservice-apple-apns',
         'zendframework/zendservice-google-gcm',

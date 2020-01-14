@@ -44,7 +44,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#12](https://github.com/laminas/laminas-dependency-plugin/pull/12) adds exclusion for zendframework/zend-debug as it was not migrated to Laminas.
 
 ## 1.0.2 - 2020-01-07
 
