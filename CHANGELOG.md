@@ -44,7 +44,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- [#10](https://github.com/laminas/laminas-dependency-plugin/pull/10) fixes a bad comparison in the `DependecyRewriterPlugin.
+- [#10](https://github.com/laminas/laminas-dependency-plugin/pull/10) fixes a bad comparison in the `DependecyRewriterPlugin`.
 
 ## 1.0.1 - 2020-01-07
 
