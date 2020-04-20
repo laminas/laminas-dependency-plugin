@@ -10,6 +10,7 @@ namespace Laminas\DependencyPlugin;
 
 use Composer\Composer;
 use Composer\DependencyResolver\Operation;
+use Composer\DependencyResolver\Request;
 use Composer\EventDispatcher\EventSubscriberInterface;
 use Composer\Installer\InstallerEvent;
 use Composer\Installer\InstallerEvents;
@@ -20,6 +21,7 @@ use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginEvents;
 use Composer\Plugin\PluginInterface;
 use Composer\Plugin\PreCommandRunEvent;
+use Composer\Repository\LockArrayRepository;
 use ReflectionProperty;
 
 use function array_map;
@@ -27,6 +29,7 @@ use function array_shift;
 use function count;
 use function get_class;
 use function in_array;
+use function method_exists;
 use function preg_match;
 use function preg_split;
 use function sprintf;
@@ -115,8 +118,14 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
     public function onPreDependenciesSolving(InstallerEvent $event)
     {
         $this->output(sprintf('<info>In %s</info>', __METHOD__), IOInterface::DEBUG);
-        $request = $event->getRequest();
-        $jobs = $request->getJobs();
+        if (method_exists($event, 'getRequest')) {
+            $request = $event->getRequest();
+            $jobs = $request->getJobs();
+        } else {
+            $request = new Request(new LockArrayRepository());
+            $jobs = $request->getRequires();
+        }
+
         $changes = false;
 
         foreach ($jobs as $index => $job) {

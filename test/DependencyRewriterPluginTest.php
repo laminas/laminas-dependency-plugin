@@ -27,6 +27,8 @@ use ReflectionProperty;
 use Symfony\Component\Console\Input\InputInterface;
 
 use function get_class;
+use function method_exists;
+use function property_exists;
 
 class DependencyRewriterPluginTest extends TestCase
 {
@@ -131,15 +133,17 @@ class DependencyRewriterPluginTest extends TestCase
         $this->activatePlugin($this->plugin);
 
         $event = $this->prophesize(InstallerEvent::class);
-        $request = $this->prophesize(Request::class);
-        $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
+        if (method_exists(InstallerEvent::class, 'getRequest')) {
+            $request = $this->prophesize(Request::class);
+            $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
 
-        $request
-            ->getJobs()
-            ->willReturn([
-                ['cmd' => 'remove'],
-            ])
-            ->shouldBeCalled();
+            $request
+                ->getJobs()
+                ->willReturn([
+                    ['cmd' => 'remove'],
+                ])
+                ->shouldBeCalled();
+        }
 
         $this->io
              ->write(
@@ -167,15 +171,17 @@ class DependencyRewriterPluginTest extends TestCase
         $this->activatePlugin($this->plugin);
 
         $event = $this->prophesize(InstallerEvent::class);
-        $request = $this->prophesize(Request::class);
-        $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
+        if (method_exists(InstallerEvent::class, 'getRequest')) {
+            $request = $this->prophesize(Request::class);
+            $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
 
-        $request
-            ->getJobs()
-            ->willReturn([
-                ['cmd' => 'install'],
-            ])
-            ->shouldBeCalled();
+            $request
+                ->getJobs()
+                ->willReturn([
+                    ['cmd' => 'install'],
+                ])
+                ->shouldBeCalled();
+        }
 
         $this->io
              ->write(
@@ -203,18 +209,20 @@ class DependencyRewriterPluginTest extends TestCase
         $this->activatePlugin($this->plugin);
 
         $event = $this->prophesize(InstallerEvent::class);
-        $request = $this->prophesize(Request::class);
-        $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
+        if (method_exists(InstallerEvent::class, 'getRequest')) {
+            $request = $this->prophesize(Request::class);
+            $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
 
-        $request
-            ->getJobs()
-            ->willReturn([
-                [
-                    'cmd' => 'install',
-                    'packageName' => 'symfony/console',
-                ],
-            ])
-            ->shouldBeCalled();
+            $request
+                ->getJobs()
+                ->willReturn([
+                    [
+                        'cmd' => 'install',
+                        'packageName' => 'symfony/console',
+                    ],
+                ])
+                ->shouldBeCalled();
+        }
 
         $this->io
              ->write(
@@ -242,18 +250,20 @@ class DependencyRewriterPluginTest extends TestCase
         $this->activatePlugin($this->plugin);
 
         $event = $this->prophesize(InstallerEvent::class);
-        $request = $this->prophesize(Request::class);
-        $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
+        if (method_exists(InstallerEvent::class, 'getRequest')) {
+            $request = $this->prophesize(Request::class);
+            $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
 
-        $request
-            ->getJobs()
-            ->willReturn([
-                [
-                    'cmd' => 'install',
-                    'packageName' => 'zendframework/zend-version',
-                ],
-            ])
-            ->shouldBeCalled();
+            $request
+                ->getJobs()
+                ->willReturn([
+                    [
+                        'cmd' => 'install',
+                        'packageName' => 'zendframework/zend-version',
+                    ],
+                ])
+                ->shouldBeCalled();
+        }
 
         $this->io
              ->write(
@@ -281,83 +291,87 @@ class DependencyRewriterPluginTest extends TestCase
         $this->activatePlugin($this->plugin);
 
         $request = new Request();
-        $request->install('zendframework/zend-form');
-        $request->update('zendframework/zend-expressive-template');
-        $request->update('zfcampus/zf-apigility');
-
         $event = $this->prophesize(InstallerEvent::class);
-        $event->getRequest()->willReturn($request)->shouldBeCalled();
+        if (method_exists($request, 'install')) {
+            $request->install('zendframework/zend-form');
+            $request->update('zendframework/zend-expressive-template');
+            $request->update('zfcampus/zf-apigility');
 
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+            $event->getRequest()->willReturn($request)->shouldBeCalled();
 
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Replacing package "zendframework/zend-form" with package "laminas/laminas-form"'
-                 ),
-                 true,
-                 IOInterface::VERBOSE
-             )
-             ->shouldBeCalled();
+            $this->io
+                 ->write(
+                     Argument::containingString(
+                         'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
+                     ),
+                     true,
+                     IOInterface::DEBUG
+                 )
+                 ->shouldBeCalled();
 
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Replacing package "zendframework/zend-expressive-template" with'
-                     . ' package "mezzio/mezzio-template"'
-                 ),
-                 true,
-                 IOInterface::VERBOSE
-             )
-             ->shouldBeCalled();
+            $this->io
+                 ->write(
+                     Argument::containingString(
+                         'Replacing package "zendframework/zend-form" with package "laminas/laminas-form"'
+                     ),
+                     true,
+                     IOInterface::VERBOSE
+                 )
+                 ->shouldBeCalled();
 
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Replacing package "zfcampus/zf-apigility" with package "laminas-api-tools/api-tools"'
-                 ),
-                 true,
-                 IOInterface::VERBOSE
-             )
-             ->shouldBeCalled();
+            $this->io
+                 ->write(
+                     Argument::containingString(
+                         'Replacing package "zendframework/zend-expressive-template" with'
+                         . ' package "mezzio/mezzio-template"'
+                     ),
+                     true,
+                     IOInterface::VERBOSE
+                 )
+                 ->shouldBeCalled();
+
+            $this->io
+                 ->write(
+                     Argument::containingString(
+                         'Replacing package "zfcampus/zf-apigility" with package "laminas-api-tools/api-tools"'
+                     ),
+                     true,
+                     IOInterface::VERBOSE
+                 )
+                 ->shouldBeCalled();
+        }
 
         $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
 
-        $r = new ReflectionProperty($request, 'jobs');
-        $r->setAccessible(true);
-        $jobs = $r->getValue($request);
+        if (property_exists($request, 'jobs')) {
+            $r = new ReflectionProperty($request, 'jobs');
+            $r->setAccessible(true);
+            $jobs = $r->getValue($request);
 
-        $this->assertSame(
-            [
+            $this->assertSame(
                 [
-                    'cmd' => 'install',
-                    'packageName' => 'laminas/laminas-form',
-                    'constraint' => null,
-                    'fixed' => false,
+                    [
+                        'cmd' => 'install',
+                        'packageName' => 'laminas/laminas-form',
+                        'constraint' => null,
+                        'fixed' => false,
+                    ],
+                    [
+                        'cmd' => 'update',
+                        'packageName' => 'mezzio/mezzio-template',
+                        'constraint' => null,
+                        'fixed' => false,
+                    ],
+                    [
+                        'cmd' => 'update',
+                        'packageName' => 'laminas-api-tools/api-tools',
+                        'constraint' => null,
+                        'fixed' => false,
+                    ],
                 ],
-                [
-                    'cmd' => 'update',
-                    'packageName' => 'mezzio/mezzio-template',
-                    'constraint' => null,
-                    'fixed' => false,
-                ],
-                [
-                    'cmd' => 'update',
-                    'packageName' => 'laminas-api-tools/api-tools',
-                    'constraint' => null,
-                    'fixed' => false,
-                ],
-            ],
-            $jobs
-        );
+                $jobs
+            );
+        }
     }
 
     public function testPrePackageInstallExitsEarlyForUnsupportedOperations()
