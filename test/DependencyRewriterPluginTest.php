@@ -649,4 +649,14 @@ class DependencyRewriterPluginTest extends TestCase
         $this->assertNull($this->plugin->onPrePackageInstall($event->reveal()));
         $this->assertSame($replacementPackage, $operation->getTargetPackage());
     }
+
+    public function testDeactivate()
+    {
+        $this->assertNull($this->plugin->deactivate($this->composer->reveal(), $this->io->reveal()));
+    }
+
+    public function testUninstall()
+    {
+        $this->assertNull($this->plugin->uninstall($this->composer->reveal(), $this->io->reveal()));
+    }
 }

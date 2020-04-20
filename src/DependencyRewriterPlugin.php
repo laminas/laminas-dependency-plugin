@@ -71,6 +71,16 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
         $this->output(sprintf('<info>Activating %s</info>', __CLASS__), IOInterface::DEBUG);
     }
 
+    public function deactivate(Composer $composer, IOInterface $io)
+    {
+        // for composer v2 support
+    }
+
+    public function uninstall(Composer $composer, IOInterface $io)
+    {
+        // for composer v2 support
+    }
+
     /**
      * When a ZF package is requested, replace with the Laminas variant.
      *

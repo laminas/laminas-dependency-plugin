@@ -8,10 +8,11 @@
     },
     "require": {
         "php": "^5.6 || ^7.0",
-        "composer-plugin-api": "^1.1"
+        "composer-plugin-api": "^1.1 || ^2.0"
     },
     "require-dev": {
-        "composer/composer": "^1.9",
+        "composer/composer": "^1.9 || ^2.0@dev",
+        "composer/semver": "^1.5.1 || ^2.0@dev",
         "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
         "phpcompatibility/php-compatibility": "^9.3",
         "phpunit/phpunit": "^8.4",
