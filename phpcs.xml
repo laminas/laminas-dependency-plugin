@@ -9,6 +9,9 @@
     <exclude-pattern>test/*/TestAsset/</exclude-pattern>
 
     <rule ref="WebimpressCodingStandard.PHP.DeclareStrictTypes">
-        <exclude-pattern>src/DependencyRewriterPlugin.php</exclude-pattern>
+        <exclude-pattern>src/*</exclude-pattern>
+    </rule>
+    <rule ref="WebimpressCodingStandard.Functions.NullableTypehint">
+        <exclude-pattern>src/*</exclude-pattern>
     </rule>
 </ruleset>

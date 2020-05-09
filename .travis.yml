@@ -8,47 +8,71 @@ env:
   global:
     - COMPOSER_ARGS="--no-interaction"
     - COVERAGE_DEPS="php-coveralls/php-coveralls"
-    - NO_TEST_DEPS="phpunit/phpunit webimpress/coding-standard"
+    - TEST_DEPS="phpunit/phpunit:^8.5 webimpress/coding-standard"
+    - COMPAT_DEPS="dealerdirect/phpcodesniffer-composer-installer"
+    - COMPOSER_VERSION=1
 
 matrix:
   include:
     - php: 5.6
       env:
-        - COMPAT_VERSION=5.6
+        - NO_TEST=1
+        - COMPAT=1
+    - php: 5.6
+      env:
+        - NO_TEST=1
+        - COMPOSER_VERSION=2
+    - php: 7.0
+      env:
         - NO_TEST=1
     - php: 7.0
       env:
-        - COMPAT_VERSION=7.0
+        - NO_TEST=1
+        - COMPOSER_VERSION=2
+    - php: 7.1
+      env:
         - NO_TEST=1
     - php: 7.1
       env:
-        - COMPAT_VERSION=7.1
         - NO_TEST=1
+        - COMPOSER_VERSION=2
     - php: 7.2
       env:
         - TEST_COVERAGE=true
-        - COMPAT_VERSION=7.2
+    - php: 7.2
+      env:
+        - COMPOSER_VERSION=2
     - php: 7.3
       env:
-        - COMPAT_VERSION=7.3
         - CS_CHECK=1
+    - php: 7.3
+      env:
+        - COMPOSER_VERSION=2
+    - php: 7.4
     - php: 7.4
       env:
-        - COMPAT_VERSION=7.4
+        - COMPOSER_VERSION=2
 
 before_install:
   - if [[ $TEST_COVERAGE != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
 
 install:
-  - if [[ $NO_TEST == '1' ]]; then travis_retry composer remove --dev $COMPOSER_ARGS $NO_TEST_DEPS ; fi
+  - composer self-update --${COMPOSER_VERSION}
   - travis_retry composer install $COMPOSER_ARGS
+  - if [[ $NO_TEST != '1' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $TEST_DEPS ; fi
+  - if [[ $CS_CHECK == '1' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $TEST_DEPS ; fi
+  - if [[ $COMPAT == '1' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $COMPAT_DEPS ; fi
   - if [[ $TEST_COVERAGE == 'true' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $COVERAGE_DEPS ; fi
   - stty cols 120 && composer show
 
 script:
   - if [[ $TEST_COVERAGE == 'true' ]]; then composer test-coverage ; else if [[ $NO_TEST != '1' ]]; then  composer test ; fi ; fi
-  - if [[ $COMPAT_VERSION != '0' ]]; then composer cs-check -- -p src --standard=PHPCompatibility --runtime-set testVersion $COMPAT_VERSION ; fi
+  - if [[ $COMPAT == '1' ]]; then composer cs-check -- -p src --standard=PHPCompatibility --runtime-set testVersion 5.6- ; fi
   - if [[ $CS_CHECK == '1' ]]; then composer cs-check ; fi
+  # Copy plugin to /tmp so we can use it in integration tests
+  - rsync -avr --exclude integration/ --exclude vendor/ --exclude .git/ --exclude test/ . /tmp/laminas-dependency-plugin
+  # Execute integration tests
+  - bash integration-tests.sh
 
 after_script:
   - if [[ $TEST_COVERAGE == 'true' ]]; then vendor/bin/php-coveralls -v ; fi

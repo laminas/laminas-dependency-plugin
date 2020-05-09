@@ -1,0 +1,46 @@
+{
+    "name": "laminas/project-with-mixed-dependencies-on-the-same-package",
+    "license": "BSD-3-Clause",
+    "description": "Test project to integration test laminas-dependency-plugin",
+    "require": {
+        "foo/bar": "^1.0",
+        "laminas/laminas-dependency-plugin": "*",
+        "psr/log": "^1.0"
+    },
+    "require-dev": {
+        "bar/baz": "^1.0"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "/tmp/laminas-dependency-plugin"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "foo/bar",
+                "version": "1.0",
+                "type": "metapackage",
+                "require": {
+                    "zendframework/zend-mvc": "^3.1"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "bar/baz",
+                "version": "1.0",
+                "type": "metapackage",
+                "require": {
+                    "zendframework/zend-mvc": "^2.7 || ^3.0"
+                }
+            }
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

@@ -4,3 +4,7 @@
 /laminas-mkdoc-theme/
 /.phpunit.result.cache
 /composer.lock
+
+# Integration testings
+integration/**/vendor/
+integration/**/composer.lock

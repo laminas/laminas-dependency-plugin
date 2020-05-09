@@ -1,0 +1,49 @@
+{
+    "name": "laminas/project-which-is-unware-that-its-not-migrated",
+    "license": "BSD-3-Clause",
+    "description": "Test project to integration test laminas-dependency-plugin",
+    "require": {
+        "foo/bar": "^1.0",
+        "laminas/laminas-dependency-plugin": "*",
+        "laminas/laminas-mvc": "^3.1"
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "/tmp/laminas-dependency-plugin"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "foo/bar",
+                "version": "1.0",
+                "type": "metapackage",
+                "require": {
+                    "bar/baz": "^1.0"
+                }
+            }
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "bar/baz",
+                "version": "1.0",
+                "type": "metapackage",
+                "require": {
+                    "zendframework/zend-mvc": "^3.1"
+                }
+            }
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "extra": {
+        "laminas-migration": {
+            "nonMigratedPackages": {
+                "bar/baz": {
+                    "zendframework/zend-mvc": "^3.1"
+                }
+            }
+        }
+    }
+}

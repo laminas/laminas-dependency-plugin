@@ -1,0 +1,32 @@
+{
+    "name": "laminas/project-with-non-migrated-library-sort-packages",
+    "license": "BSD-3-Clause",
+    "description": "Test project to integration test laminas-dependency-plugin",
+    "require": {
+        "foo/bar": "^1.0",
+        "laminas/laminas-dependency-plugin": "*",
+        "psr/log": "^1.0"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "repositories": [
+        {
+            "type": "path",
+            "url": "/tmp/laminas-dependency-plugin"
+        },
+        {
+            "type": "package",
+            "package": {
+                "name": "foo/bar",
+                "version": "1.0",
+                "type": "metapackage",
+                "require": {
+                    "zendframework/zend-mvc": "^3.1"
+                }
+            }
+        }
+    ],
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
