@@ -22,7 +22,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#17](https://github.com/laminas/laminas-dependency-plugin/pull/17) fixes how the various Expressive packages referencing Zend Framework components are detected and rewritten, so that they now properly reference Laminas instead of Zend in the rewritten names.
 
 ## 1.0.3 - 2020-01-14
 
