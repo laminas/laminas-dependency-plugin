@@ -108,6 +108,7 @@ class DependencyRewriterPluginTest extends TestCase
                 'zendframework/zend-form',
                 'zfcampus/zf-content-negotiation',
                 'zendframework/zend-expressive-hal',
+                'zendframework/zend-expressive-zendviewrenderer'
             ])
             ->shouldBeCalled();
         $input
@@ -117,6 +118,7 @@ class DependencyRewriterPluginTest extends TestCase
                     'laminas/laminas-form',
                     'laminas-api-tools/api-tools-content-negotiation',
                     'mezzio/mezzio-hal',
+                    'mezzio/mezzio-laminasviewrenderer'
                 ]
             )
             ->shouldBeCalled();
