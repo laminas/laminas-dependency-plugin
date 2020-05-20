@@ -293,6 +293,9 @@ class DependencyRewriterPlugin implements EventSubscriberInterface, PluginInterf
                 return 'laminas/laminas-development-mode';
             // All other packages:
             default:
+                if (preg_match('#^zendframework/zend-expressive-zend(?<name>.*)$#', $name, $matches)) {
+                    return sprintf('mezzio/mezzio-laminas%s', $matches['name']);
+                }
                 if (preg_match('#^zendframework/zend-expressive-(?<name>.*)$#', $name, $matches)) {
                     return sprintf('mezzio/mezzio-%s', $matches['name']);
                 }
