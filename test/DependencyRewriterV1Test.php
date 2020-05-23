@@ -17,9 +17,10 @@ use Composer\Installer\PackageEvent;
 use Composer\IO\IOInterface;
 use Composer\Package\Package;
 use Composer\Package\PackageInterface;
+use Composer\Plugin\PluginInterface;
 use Composer\Plugin\PreCommandRunEvent;
 use Composer\Repository\RepositoryManager;
-use Laminas\DependencyPlugin\DependencyRewriterPlugin;
+use Laminas\DependencyPlugin\DependencyRewriterV1;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -27,30 +28,35 @@ use ReflectionProperty;
 use Symfony\Component\Console\Input\InputInterface;
 
 use function get_class;
+use function version_compare;
 
-class DependencyRewriterPluginTest extends TestCase
+final class DependencyRewriterV1Test extends TestCase
 {
     /** @var Composer|ObjectProphecy */
-    public $composer;
+    private $composer;
 
     /** @var IOInterface|ObjectProphecy */
-    public $io;
+    private $io;
 
-    /** @var DependencyRewriterPlugin */
-    public $plugin;
+    /** @var DependencyRewriterV1 */
+    private $plugin;
 
     public function setUp() : void
     {
+        if (! version_compare(PluginInterface::PLUGIN_API_VERSION, '2.0', 'lt')) {
+            $this->markTestSkipped('Only executing these tests for composer v1');
+        }
+
         $this->composer = $this->prophesize(Composer::class);
         $this->io = $this->prophesize(IOInterface::class);
-        $this->plugin = new DependencyRewriterPlugin();
+        $this->plugin = new DependencyRewriterV1();
     }
 
-    public function activatePlugin(DependencyRewriterPlugin $plugin) : void
+    public function activatePlugin(DependencyRewriterV1 $plugin) : void
     {
         $this->io
              ->write(
-                 Argument::containingString('Activating Laminas\DependencyPlugin\DependencyRewriterPlugin'),
+                 Argument::containingString('Activating Laminas\DependencyPlugin\DependencyRewriterV1'),
                  true,
                  IOInterface::DEBUG
              )
@@ -63,6 +69,16 @@ class DependencyRewriterPluginTest extends TestCase
     {
         $this->activatePlugin($this->plugin);
 
+        $this->io
+             ->write(
+                 Argument::containingString(
+                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreCommandRun'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
+
         $event = $this->prophesize(PreCommandRunEvent::class);
         $event->getCommand()->willReturn('remove')->shouldBeCalled();
         $event->getInput()->shouldNotBeCalled();
@@ -74,10 +90,24 @@ class DependencyRewriterPluginTest extends TestCase
     {
         $this->activatePlugin($this->plugin);
 
+        $this->io
+             ->write(
+                 Argument::containingString(
+                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreCommandRun'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
+
         $event = $this->prophesize(PreCommandRunEvent::class);
         $event->getCommand()->willReturn('require')->shouldBeCalled();
 
         $input = $this->prophesize(InputInterface::class);
+        $input
+            ->hasArgument('packages')
+            ->willReturn(true);
+
         $input
             ->getArgument('packages')
             ->willReturn(['symfony/console', 'phpunit/phpunit'])
@@ -98,17 +128,31 @@ class DependencyRewriterPluginTest extends TestCase
     {
         $this->activatePlugin($this->plugin);
 
+        $this->io
+             ->write(
+                 Argument::containingString(
+                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreCommandRun'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
+
         $event = $this->prophesize(PreCommandRunEvent::class);
         $event->getCommand()->willReturn('require')->shouldBeCalled();
 
         $input = $this->prophesize(InputInterface::class);
+        $input
+            ->hasArgument('packages')
+            ->willReturn(true);
+
         $input
             ->getArgument('packages')
             ->willReturn([
                 'zendframework/zend-form',
                 'zfcampus/zf-content-negotiation',
                 'zendframework/zend-expressive-hal',
-                'zendframework/zend-expressive-zendviewrenderer'
+                'zendframework/zend-expressive-zendviewrenderer',
             ])
             ->shouldBeCalled();
         $input
@@ -118,17 +162,59 @@ class DependencyRewriterPluginTest extends TestCase
                     'laminas/laminas-form',
                     'laminas-api-tools/api-tools-content-negotiation',
                     'mezzio/mezzio-hal',
-                    'mezzio/mezzio-laminasviewrenderer'
+                    'mezzio/mezzio-laminasviewrenderer',
                 ]
             )
             ->shouldBeCalled();
 
         $event->getInput()->will([$input, 'reveal']);
 
+        $this->io
+             ->write(
+                 Argument::containingString(
+                     'Changing package in current command from zendframework/zend-form to laminas/laminas-form'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
+
+        $this->io
+             ->write(
+                 Argument::containingString(
+                     'Changing package in current command from zfcampus/zf-content-negotiation to'
+                     . ' laminas-api-tools/api-tools-content-negotiation'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
+
+        $this->io
+             ->write(
+                 Argument::containingString(
+                     'Changing package in current command from zendframework/zend-expressive-hal to mezzio/mezzio-hal'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
+
+        $this->io
+             ->write(
+                 Argument::containingString(
+                     'Changing package in current command from zendframework/zend-expressive-zendviewrenderer'
+                     . ' to mezzio/mezzio-laminasviewrenderer'
+                 ),
+                 true,
+                 IOInterface::DEBUG
+             )
+             ->shouldBeCalled();
+
         $this->assertNull($this->plugin->onPreCommandRun($event->reveal()));
     }
 
-    public function testOnPreDependenciesSolvingIgnoresNonInstallUpdateJobs()
+    public function testOnPreDependenciesSolvingIgnoresNonInstallUpdateJobs() : void
     {
         $this->activatePlugin($this->plugin);
 
@@ -146,7 +232,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->io
              ->write(
                  Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
+                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
                  ),
                  true,
                  IOInterface::DEBUG
@@ -164,7 +250,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
     }
 
-    public function testOnPreDependenciesSolvingIgnoresJobsWithoutPackageNames()
+    public function testOnPreDependenciesSolvingIgnoresJobsWithoutPackageNames() : void
     {
         $this->activatePlugin($this->plugin);
 
@@ -182,7 +268,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->io
              ->write(
                  Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
+                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
                  ),
                  true,
                  IOInterface::DEBUG
@@ -200,7 +286,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
     }
 
-    public function testOnPreDependenciesSolvingIgnoresNonZFPackages()
+    public function testOnPreDependenciesSolvingIgnoresNonZFPackages() : void
     {
         $this->activatePlugin($this->plugin);
 
@@ -221,7 +307,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->io
              ->write(
                  Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
+                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
                  ),
                  true,
                  IOInterface::DEBUG
@@ -239,7 +325,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
     }
 
-    public function testOnPreDependenciesSolvingIgnoresZFPackagesWithoutSubstitutions()
+    public function testOnPreDependenciesSolvingIgnoresZFPackagesWithoutSubstitutions() : void
     {
         $this->activatePlugin($this->plugin);
 
@@ -260,7 +346,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->io
              ->write(
                  Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
+                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
                  ),
                  true,
                  IOInterface::DEBUG
@@ -278,7 +364,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
     }
 
-    public function testOnPreDependenciesSolvingReplacesZFPackagesWithSubstitutions()
+    public function testOnPreDependenciesSolvingReplacesZFPackagesWithSubstitutions() : void
     {
         $this->activatePlugin($this->plugin);
 
@@ -293,7 +379,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->io
              ->write(
                  Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterPlugin::onPreDependenciesSolving'
+                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
                  ),
                  true,
                  IOInterface::DEBUG
@@ -362,7 +448,7 @@ class DependencyRewriterPluginTest extends TestCase
         );
     }
 
-    public function testPrePackageInstallExitsEarlyForUnsupportedOperations()
+    public function testPrePackageInstallExitsEarlyForUnsupportedOperations() : void
     {
         $this->activatePlugin($this->plugin);
 
@@ -374,7 +460,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->io
              ->write(
                  Argument::containingString(
-                     'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
+                     'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
                  ),
                  true,
                  IOInterface::DEBUG
@@ -391,10 +477,10 @@ class DependencyRewriterPluginTest extends TestCase
              )
              ->shouldBeCalled();
 
-        $this->assertNull($this->plugin->onPrePackageInstall($event->reveal()));
+        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event->reveal()));
     }
 
-    public function testPrePackageInstallExitsEarlyForNonZFPackages()
+    public function testPrePackageInstallExitsEarlyForNonZFPackages() : void
     {
         $this->activatePlugin($this->plugin);
 
@@ -409,7 +495,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->io
              ->write(
                  Argument::containingString(
-                     'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
+                     'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
                  ),
                  true,
                  IOInterface::DEBUG
@@ -436,10 +522,10 @@ class DependencyRewriterPluginTest extends TestCase
              )
              ->shouldBeCalled();
 
-        $this->assertNull($this->plugin->onPrePackageInstall($event->reveal()));
+        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event->reveal()));
     }
 
-    public function testPrePackageInstallExitsEarlyForZFPackagesWithoutReplacements()
+    public function testPrePackageInstallExitsEarlyForZFPackagesWithoutReplacements() : void
     {
         $this->activatePlugin($this->plugin);
 
@@ -454,7 +540,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->io
              ->write(
                  Argument::containingString(
-                     'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
+                     'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
                  ),
                  true,
                  IOInterface::DEBUG
@@ -492,10 +578,10 @@ class DependencyRewriterPluginTest extends TestCase
              )
              ->shouldBeCalled();
 
-        $this->assertNull($this->plugin->onPrePackageInstall($event->reveal()));
+        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event->reveal()));
     }
 
-    public function testPrePackageInstallExitsEarlyForZFPackagesWithoutReplacementsForSpecificVersion()
+    public function testPrePackageInstallExitsEarlyForZFPackagesWithoutReplacementsForSpecificVersion() : void
     {
         $this->activatePlugin($this->plugin);
 
@@ -517,7 +603,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->io
              ->write(
                  Argument::containingString(
-                     'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
+                     'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
                  ),
                  true,
                  IOInterface::DEBUG
@@ -565,10 +651,10 @@ class DependencyRewriterPluginTest extends TestCase
              )
              ->shouldBeCalled();
 
-        $this->assertNull($this->plugin->onPrePackageInstall($event->reveal()));
+        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event->reveal()));
     }
 
-    public function testPrePackageUpdatesPackageNameWhenReplacementExists()
+    public function testPrePackageUpdatesPackageNameWhenReplacementExists() : void
     {
         $this->activatePlugin($this->plugin);
 
@@ -590,7 +676,7 @@ class DependencyRewriterPluginTest extends TestCase
         $this->io
              ->write(
                  Argument::containingString(
-                     'In ' . DependencyRewriterPlugin::class . '::onPrePackageInstall'
+                     'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
                  ),
                  true,
                  IOInterface::DEBUG
@@ -648,7 +734,7 @@ class DependencyRewriterPluginTest extends TestCase
              )
              ->shouldBeCalled();
 
-        $this->assertNull($this->plugin->onPrePackageInstall($event->reveal()));
+        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event->reveal()));
         $this->assertSame($replacementPackage, $operation->getTargetPackage());
     }
 }

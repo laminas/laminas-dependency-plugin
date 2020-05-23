@@ -8,7 +8,9 @@
 
 namespace Laminas\DependencyPlugin;
 
-/** @deprecated */
-class DependencyRewriterPlugin extends DependencyRewriterPluginDelegator
+use Composer\Script\Event;
+
+interface AutoloadDumpCapableInterface extends RewriterInterface
 {
+    public function onPostAutoloadDump(Event $event);
 }

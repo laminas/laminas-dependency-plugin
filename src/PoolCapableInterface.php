@@ -8,7 +8,12 @@
 
 namespace Laminas\DependencyPlugin;
 
-/** @deprecated */
-class DependencyRewriterPlugin extends DependencyRewriterPluginDelegator
+use Composer\Plugin\PrePoolCreateEvent;
+
+interface PoolCapableInterface extends RewriterInterface
 {
+    /**
+     * If a ZF package is being installed, ensure the pool is modified to install the laminas equivalent instead.
+     */
+    public function onPrePoolCreate(PrePoolCreateEvent $event);
 }

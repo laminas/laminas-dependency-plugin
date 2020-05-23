@@ -1,14 +1,18 @@
 <?xml version="1.0"?>
 <ruleset name="Webimpress Coding Standard">
-    <rule ref="./vendor/webimpress/coding-standard/ruleset.xml"/>
+    <rule ref="./vendor/webimpress/coding-standard/ruleset.xml">
+        <exclude name="WebimpressCodingStandard.Functions.NullableTypehint"/>
+    </rule>
 
     <!-- Paths to check -->
     <file>src</file>
     <file>test</file>
 
-    <exclude-pattern>test/*/TestAsset/</exclude-pattern>
-
     <rule ref="WebimpressCodingStandard.PHP.DeclareStrictTypes">
-        <exclude-pattern>src/DependencyRewriterPlugin.php</exclude-pattern>
+        <exclude-pattern>src/*</exclude-pattern>
+    </rule>
+
+    <rule ref="Generic.NamingConventions.CamelCapsFunctionName">
+        <exclude-pattern>test/*</exclude-pattern>
     </rule>
 </ruleset>

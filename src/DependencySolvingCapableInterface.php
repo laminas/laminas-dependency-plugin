@@ -8,7 +8,12 @@
 
 namespace Laminas\DependencyPlugin;
 
-/** @deprecated */
-class DependencyRewriterPlugin extends DependencyRewriterPluginDelegator
+use Composer\Installer\InstallerEvent;
+
+interface DependencySolvingCapableInterface extends RewriterInterface
 {
+    /**
+     * If a ZF package is being installed, modify the incoming request to slip-stream laminas packages.
+     */
+    public function onPreDependenciesSolving(InstallerEvent $event);
 }
