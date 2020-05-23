@@ -30,6 +30,7 @@ use Laminas\DependencyPlugin\DependencyRewriterV2;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use ReflectionProperty;
 use Symfony\Component\Console\Input\ArrayInput;
@@ -49,6 +50,8 @@ use const JSON_THROW_ON_ERROR;
 
 final class DependencyRewriterV2Test extends TestCase
 {
+    use ProphecyTrait;
+
     /** @var Composer|ObjectProphecy */
     private $composer;
 

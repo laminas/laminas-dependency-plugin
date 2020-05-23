@@ -23,6 +23,7 @@ use Composer\Repository\RepositoryManager;
 use Laminas\DependencyPlugin\DependencyRewriterV1;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
+use Prophecy\PhpUnit\ProphecyTrait;
 use Prophecy\Prophecy\ObjectProphecy;
 use ReflectionProperty;
 use Symfony\Component\Console\Input\InputInterface;
@@ -32,6 +33,8 @@ use function version_compare;
 
 final class DependencyRewriterV1Test extends TestCase
 {
+    use ProphecyTrait;
+
     /** @var Composer|ObjectProphecy */
     private $composer;
 
