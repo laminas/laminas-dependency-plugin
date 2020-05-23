@@ -11,8 +11,8 @@ env:
     - TEST=false
     - CS_CHECK=false
     - COMPOSER_ARGS="--no-interaction"
-    - COVERAGE_DEPS="php-coveralls/php-coveralls"
     - TEST_DEPS="phpunit/phpunit:^9.1 phpspec/prophecy-phpunit webimpress/coding-standard:^1.0"
+    - COVERAGE_DEPS="$TEST_DEPS php-coveralls/php-coveralls"
 
 matrix:
   include:
