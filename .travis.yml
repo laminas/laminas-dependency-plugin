@@ -49,10 +49,10 @@ matrix:
 
 before_install:
   - if [[ $TEST_COVERAGE != 'true' ]]; then phpenv config-rm xdebug.ini || return 0 ; fi
-  - travis_retry composer self-update --${COMPOSER_VERSION}
 
 install:
   - travis_retry composer install $COMPOSER_ARGS
+  - if [[ $COMPOSER_VERSION == "1" ]]; then travis_retry composer update composer/* --prefer-lowest ; fi
   - if [[ $TEST == 'true' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $TEST_DEPS ; fi
   - if [[ $TEST_COVERAGE == 'true' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $COVERAGE_DEPS ; fi
   - stty cols 120 && composer show
