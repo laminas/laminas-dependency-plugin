@@ -58,7 +58,7 @@ install:
   - stty cols 120 && composer show
 
 script:
-  - if [[ $TEST_COVERAGE == 'true' ]]; then composer test-coverage ; else if [[ $NO_TEST != '1' ]]; then  composer test ; fi ; fi
+  - if [[ $TEST_COVERAGE == 'true' ]]; then composer test-coverage ; else if [[ $TEST != 'false' ]]; then  composer test ; fi ; fi
   - if [[ "$COMPAT" == 'true' ]]; then composer compat ; fi
   - if [[ $CS_CHECK == 'true' ]]; then composer cs-check ; fi
 
