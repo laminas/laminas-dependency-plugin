@@ -725,6 +725,11 @@ TXT
              ->getConfig()
              ->willReturn($config->reveal());
 
+        $this->io
+            ->isDebug()
+            ->willReturn(false)
+            ->shouldBeCalled();
+
         $event = $this->prophesize(PrePoolCreateEvent::class);
         $event
             ->getUnacceptableFixedPackages()
