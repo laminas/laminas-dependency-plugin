@@ -89,7 +89,7 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
      */
     protected function output($message, $verbosity = IOInterface::NORMAL)
     {
-        $this->io->write($message, $newline = true, $verbosity);
+        $this->io->write($message, true, $verbosity);
     }
 
     /**
