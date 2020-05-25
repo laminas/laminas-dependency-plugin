@@ -160,7 +160,7 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter
      */
     private function updateProperty($object, $property, $value)
     {
-        (static function ($object, $property, $value) {
+        (function ($object, $property, $value) {
             $object->$property = $value;
         })->bindTo($object, $object)($object, $property, $value);
     }
