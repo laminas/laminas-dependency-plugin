@@ -13,7 +13,6 @@ use Composer\Installer\InstallerEvent;
 use Composer\Installer\PackageEvent;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
-use ReflectionProperty;
 
 use function get_class;
 use function in_array;
@@ -161,8 +160,8 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter
      */
     private function updateProperty($object, $property, $value)
     {
-        $r = new ReflectionProperty($object, $property);
-        $r->setAccessible(true);
-        $r->setValue($object, $value);
+        (static function ($object, $property, $value) {
+            $object->$property = $value;
+        })->bindTo($object, $object)($object, $property, $value);
     }
 }
