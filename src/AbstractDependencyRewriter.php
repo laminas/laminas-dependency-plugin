@@ -15,10 +15,10 @@ use Composer\Plugin\PreCommandRunEvent;
 
 use function array_map;
 use function array_shift;
-use function count;
 use function get_class;
 use function in_array;
 use function preg_split;
+use function reset;
 use function sprintf;
 
 abstract class AbstractDependencyRewriter implements RewriterInterface
@@ -127,9 +127,9 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
             IOInterface::DEBUG
         );
 
-        $version = count($result) ? array_shift($result) : null;
+        $version = reset($result);
 
-        if ($version === null) {
+        if ($version === false) {
             return $replacementName;
         }
 
