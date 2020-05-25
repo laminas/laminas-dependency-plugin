@@ -160,6 +160,7 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter
      */
     private function updateProperty($object, $property, $value)
     {
+        // @phpcs:ignore WebimpressCodingStandard.PHP.StaticCallback.Static
         (function ($object, $property, $value) {
             $object->$property = $value;
         })->bindTo($object, $object)($object, $property, $value);
