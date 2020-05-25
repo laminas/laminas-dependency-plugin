@@ -25,8 +25,6 @@ use Laminas\DependencyPlugin\PoolCapableInterface;
 use Laminas\DependencyPlugin\RewriterInterface;
 use PHPUnit\Framework\TestCase;
 
-use function call_user_func;
-
 final class DependencyRewriterPluginDelegatorTest extends TestCase
 {
     public function testWillTriggerActivate() : void
@@ -61,7 +59,7 @@ final class DependencyRewriterPluginDelegatorTest extends TestCase
         self::assertInstanceOf(RewriterInterface::class, $rewriter);
         $delegator = new DependencyRewriterPluginDelegator($rewriter);
 
-        call_user_func([$delegator, $eventMethod], $event);
+        $delegator->$eventMethod($event);
     }
 
     public function eventsToForward() : Generator
