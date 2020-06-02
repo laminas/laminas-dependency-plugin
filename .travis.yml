@@ -12,7 +12,6 @@ env:
     - CS_CHECK=false
     - COMPOSER_ARGS="--no-interaction"
     - TEST_DEPS="phpunit/phpunit:^9.1 phpspec/prophecy-phpunit webimpress/coding-standard:^1.0"
-    - COVERAGE_DEPS="$TEST_DEPS php-coveralls/php-coveralls"
 
 matrix:
   include:
@@ -42,6 +41,7 @@ matrix:
     - php: 7.4
       env:
         - COMPOSER_VERSION=2
+        - TEST_COVERAGE=true
     - php: 7.4
       env:
         - TEST_COVERAGE=true
@@ -54,7 +54,7 @@ install:
   - travis_retry composer install $COMPOSER_ARGS
   - if [[ $COMPOSER_VERSION == "1" ]]; then travis_retry composer update composer/* --prefer-lowest ; fi
   - if [[ $TEST == 'true' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $TEST_DEPS ; fi
-  - if [[ $TEST_COVERAGE == 'true' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $COVERAGE_DEPS ; fi
+  - if [[ $TEST_COVERAGE == 'true' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $TEST_DEPS ; fi
   - stty cols 120 && composer show
 
 script:
@@ -62,8 +62,8 @@ script:
   - if [[ "$COMPAT" == 'true' ]]; then composer compat ; fi
   - if [[ $CS_CHECK == 'true' ]]; then composer cs-check ; fi
 
-after_script:
-  - if [[ $TEST_COVERAGE == 'true' ]]; then vendor/bin/php-coveralls -v ; fi
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
 
 notifications:
   email: false
