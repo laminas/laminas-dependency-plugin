@@ -2,33 +2,11 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 1.1.0 - TBD
+## 2.0.0beta1 - 2020-07-01
 
 ### Added
 
-- Nothing.
-
-### Changed
-
-- Nothing.
-
-### Deprecated
-
-- Nothing.
-
-### Removed
-
-- Nothing.
-
-### Fixed
-
-- Nothing.
-
-## 1.0.5 - TBD
-
-### Added
-
-- Nothing.
+- [#18](https://github.com/laminas/laminas-dependency-plugin/pull/18) adds support for Composer version 2 releases.
 
 ### Changed
 
