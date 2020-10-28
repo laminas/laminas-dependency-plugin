@@ -18,7 +18,7 @@ use function get_class;
 use function in_array;
 use function sprintf;
 
-final class DependencyRewriterV1 extends AbstractDependencyRewriter
+final class DependencyRewriterV1 extends AbstractDependencyRewriter implements DependencySolvingCapableInterface
 {
     /**
      * Replace ZF packages present in the composer.json during install or
