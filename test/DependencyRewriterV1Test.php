@@ -21,6 +21,7 @@ use Composer\Plugin\PluginInterface;
 use Composer\Plugin\PreCommandRunEvent;
 use Composer\Repository\RepositoryManager;
 use Laminas\DependencyPlugin\DependencyRewriterV1;
+use Laminas\DependencyPlugin\DependencySolvingCapableInterface;
 use PHPUnit\Framework\TestCase;
 use Prophecy\Argument;
 use Prophecy\PhpUnit\ProphecyTrait;
@@ -739,5 +740,10 @@ final class DependencyRewriterV1Test extends TestCase
 
         $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event->reveal()));
         $this->assertSame($replacementPackage, $operation->getTargetPackage());
+    }
+
+    public function testRewriterImplementsDependencySolvingCapableInterface() : void
+    {
+        self::assertInstanceOf(DependencySolvingCapableInterface::class, $this->plugin);
     }
 }
