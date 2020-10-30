@@ -1,18 +1,24 @@
 <?xml version="1.0"?>
-<ruleset name="Webimpress Coding Standard">
-    <rule ref="./vendor/webimpress/coding-standard/ruleset.xml">
-        <exclude name="WebimpressCodingStandard.Functions.NullableTypehint"/>
-    </rule>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="./vendor/squizlabs/php_codesniffer/phpcs.xsd">
+
+    <arg name="basepath" value="." />
+    <arg name="cache" value=".phpcs-cache" />
+    <arg name="colors" />
+    <arg name="extensions" value="php" />
+    <arg name="parallel" value="80" />
+
+    <!-- Show progress -->
+    <arg value="p"/>
 
     <!-- Paths to check -->
     <file>src</file>
     <file>test</file>
 
-    <rule ref="WebimpressCodingStandard.PHP.DeclareStrictTypes">
-        <exclude-pattern>src/*</exclude-pattern>
-    </rule>
+    <!-- Include all rules from Laminas Coding Standard -->
+    <rule ref="LaminasCodingStandard" />
 
-    <rule ref="Generic.NamingConventions.CamelCapsFunctionName">
-        <exclude-pattern>test/*</exclude-pattern>
+    <rule ref="SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedMethod">
+        <exclude-pattern>/src/AbstractDependencyRewriter.php</exclude-pattern>
     </rule>
 </ruleset>

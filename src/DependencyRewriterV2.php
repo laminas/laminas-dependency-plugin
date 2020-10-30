@@ -34,28 +34,22 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
     PoolCapableInterface,
     AutoloadDumpCapableInterface
 {
-    /**
-     * @var PackageInterface[]
-     */
+    /** @var PackageInterface[] */
     private $zendPackagesInstalled = [];
 
-    /**
-     * @var callable
-     */
+    /** @var callable */
     private $applicationFactory;
 
-    /**
-     * @var string
-     */
+    /** @var string */
     private $composerFile;
 
     /**
      * @param string $composerFile
      */
-    public function __construct(callable $applicationFactory = null, $composerFile = '')
+    public function __construct(?callable $applicationFactory = null, $composerFile = '')
     {
         parent::__construct();
-        $this->composerFile = $composerFile ?: Factory::getComposerFile();
+        $this->composerFile       = $composerFile ?: Factory::getComposerFile();
         $this->applicationFactory = $applicationFactory ?: static function () {
             return new Application();
         };
@@ -109,8 +103,9 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
             return;
         }
 
-        $version = $package->getVersion();
-        $replacementPackage = $this->composer->getRepositoryManager()->findPackage($replacementName, $version);
+        $version            = $package->getVersion();
+        $repositoryManager  = $this->composer->getRepositoryManager();
+        $replacementPackage = $repositoryManager->findPackage($replacementName, $version);
 
         if ($replacementPackage === null) {
             // No matching replacement package found
@@ -139,17 +134,17 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
         }
 
         // Remove zend-packages from vendor/ directory
-        $composer = $event->getComposer();
+        $composer   = $event->getComposer();
         $installers = $composer->getInstallationManager();
         $repository = $composer->getRepositoryManager()->getLocalRepository();
 
         $composerFile = $this->createComposerFile();
-        $definition = $composerFile->read();
+        $definition   = $composerFile->read();
         assert(is_array($definition));
         $definitionChanged = false;
 
         foreach ($this->zendPackagesInstalled as $package) {
-            $packageName = $package->getName();
+            $packageName     = $package->getName();
             $replacementName = $this->transformPackageName($packageName);
             if ($this->isRootRequirement($definition, $packageName)) {
                 $this->output(sprintf(
@@ -159,7 +154,7 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
                 ));
 
                 $definitionChanged = true;
-                $definition = $this->updateRootRequirements(
+                $definition        = $this->updateRootRequirements(
                     $definition,
                     $packageName,
                     $replacementName
@@ -182,7 +177,7 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
         $this->output(sprintf('In %s', __METHOD__));
 
         $installedRepository = $this->createInstalledRepository($this->composer, $this->io);
-        $installedPackages = $installedRepository->getPackages();
+        $installedPackages   = $installedRepository->getPackages();
 
         $installedZendPackages = [];
 
@@ -199,8 +194,8 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
         }
 
         $unacceptableFixedPackages = $event->getUnacceptableFixedPackages();
-        $repository = $this->composer->getRepositoryManager();
-        $packages = $event->getPackages();
+        $repository                = $this->composer->getRepositoryManager();
+        $packages                  = $event->getPackages();
 
         foreach ($packages as $index => $package) {
             if (! in_array($package->getName(), $installedZendPackages, true)) {
@@ -239,9 +234,9 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
         $application->setAutoExit(false);
 
         $input = [
-            'command' => 'update',
-            '--lock' => true,
-            '--no-scripts' => true,
+            'command'       => 'update',
+            '--lock'        => true,
+            '--no-scripts'  => true,
             '--working-dir' => dirname($this->composerFile),
         ];
 

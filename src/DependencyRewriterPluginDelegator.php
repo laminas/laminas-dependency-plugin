@@ -27,12 +27,10 @@ use function version_compare;
 
 class DependencyRewriterPluginDelegator implements EventSubscriberInterface, PluginInterface
 {
-    /**
-     * @var RewriterInterface
-     */
+    /** @var RewriterInterface */
     private $rewriter;
 
-    public function __construct(RewriterInterface $rewriter = null)
+    public function __construct(?RewriterInterface $rewriter = null)
     {
         $this->rewriter = $rewriter
             ?: $this->createDependencyRewriterForPluginVersion(PluginInterface::PLUGIN_API_VERSION);
@@ -47,18 +45,18 @@ class DependencyRewriterPluginDelegator implements EventSubscriberInterface, Plu
         if (version_compare(PluginInterface::PLUGIN_API_VERSION, '2.0', 'lt')) {
             return [
                 InstallerEvents::PRE_DEPENDENCIES_SOLVING => ['onPreDependenciesSolving', 1000],
-                PackageEvents::PRE_PACKAGE_INSTALL => ['onPrePackageInstallOrUpdate', 1000],
-                PackageEvents::PRE_PACKAGE_UPDATE => ['onPrePackageInstallOrUpdate', 1000],
-                PluginEvents::PRE_COMMAND_RUN => ['onPreCommandRun', 1000],
+                PackageEvents::PRE_PACKAGE_INSTALL        => ['onPrePackageInstallOrUpdate', 1000],
+                PackageEvents::PRE_PACKAGE_UPDATE         => ['onPrePackageInstallOrUpdate', 1000],
+                PluginEvents::PRE_COMMAND_RUN             => ['onPreCommandRun', 1000],
             ];
         }
 
         return [
-            PluginEvents::PRE_POOL_CREATE => ['onPrePoolCreate', 1000],
+            PluginEvents::PRE_POOL_CREATE      => ['onPrePoolCreate', 1000],
             PackageEvents::PRE_PACKAGE_INSTALL => ['onPrePackageInstallOrUpdate', 1000],
-            PackageEvents::PRE_PACKAGE_UPDATE => ['onPrePackageInstallOrUpdate', 1000],
-            PluginEvents::PRE_COMMAND_RUN => ['onPreCommandRun', 1000],
-            ScriptEvents::POST_AUTOLOAD_DUMP => ['onPostAutoloadDump', -1000],
+            PackageEvents::PRE_PACKAGE_UPDATE  => ['onPrePackageInstallOrUpdate', 1000],
+            PluginEvents::PRE_COMMAND_RUN      => ['onPreCommandRun', 1000],
+            ScriptEvents::POST_AUTOLOAD_DUMP   => ['onPostAutoloadDump', -1000],
         ];
     }
 

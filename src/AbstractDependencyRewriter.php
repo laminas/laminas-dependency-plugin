@@ -15,7 +15,6 @@ use Composer\Plugin\PreCommandRunEvent;
 
 use function array_map;
 use function array_shift;
-use function get_class;
 use function in_array;
 use function preg_split;
 use function reset;
@@ -29,9 +28,7 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
     /** @var IOInterface */
     protected $io;
 
-    /**
-     * @var Replacements
-     */
+    /** @var Replacements */
     private $replacements;
 
     public function __construct()
@@ -42,8 +39,8 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
     public function activate(Composer $composer, IOInterface $io)
     {
         $this->composer = $composer;
-        $this->io = $io;
-        $this->output(sprintf('<info>Activating %s</info>', get_class($this)), IOInterface::DEBUG);
+        $this->io       = $io;
+        $this->output(sprintf('<info>Activating %s</info>', static::class), IOInterface::DEBUG);
     }
 
     /**
@@ -59,7 +56,7 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
         $this->output(
             sprintf(
                 '<info>In %s::%s</info>',
-                get_class($this),
+                static::class,
                 __FUNCTION__
             ),
             IOInterface::DEBUG

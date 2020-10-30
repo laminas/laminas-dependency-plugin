@@ -33,7 +33,7 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
     {
         $this->output(sprintf('<info>In %s</info>', __METHOD__), IOInterface::DEBUG);
         $request = $event->getRequest();
-        $jobs = $request->getJobs();
+        $jobs    = $request->getJobs();
         $changes = false;
 
         foreach ($jobs as $index => $job) {
@@ -62,8 +62,8 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
             ), IOInterface::VERBOSE);
 
             $job['packageName'] = $replacementName;
-            $jobs[$index] = $job;
-            $changes = true;
+            $jobs[$index]       = $job;
+            $changes            = true;
         }
 
         if (! $changes) {
@@ -121,7 +121,7 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
             return;
         }
 
-        $version = $package->getVersion();
+        $version            = $package->getVersion();
         $replacementPackage = $this->composer->getRepositoryManager()->findPackage($replacementName, $version);
 
         if ($replacementPackage === null) {

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @see       https://github.com/laminas/laminas-dependency-plugin for the canonical source repository
  * @copyright https://github.com/laminas/laminas-dependency-plugin/blob/master/COPYRIGHT.md
@@ -15,12 +16,10 @@ use PHPUnit\Framework\TestCase;
 
 final class ReplacementsTest extends TestCase
 {
-    /**
-     * @var Replacements
-     */
+    /** @var Replacements */
     private $replacements;
 
-    protected function setUp() : void
+    protected function setUp(): void
     {
         parent::setUp();
         $this->replacements = new Replacements();
@@ -31,13 +30,13 @@ final class ReplacementsTest extends TestCase
      * @dataProvider ignoredZFCampusPackages
      * @dataProvider zendToLaminasPackageNames
      */
-    public function testWillReplacePackageNames(string $packageName, string $expectedPackageName) : void
+    public function testWillReplacePackageNames(string $packageName, string $expectedPackageName): void
     {
         $transformedPackageName = $this->replacements->transformPackageName($packageName);
         $this->assertEquals($expectedPackageName, $transformedPackageName);
     }
 
-    public function zendToLaminasPackageNames() : Generator
+    public function zendToLaminasPackageNames(): Generator
     {
         yield 'zendframework/zenddiagnostics' => ['zendframework/zenddiagnostics', 'laminas/laminas-diagnostics'];
         yield 'zendframework/zendoauth' => ['zendframework/zendoauth', 'laminas/laminas-oauth'];
@@ -84,7 +83,7 @@ final class ReplacementsTest extends TestCase
         yield 'zendframework/zend-* regex' => ['zendframework/zend-config', 'laminas/laminas-config'];
     }
 
-    public function ignoredZendPackages() : Generator
+    public function ignoredZendPackages(): Generator
     {
         yield 'ignored zend-debug' => ['zendframework/zend-debug', 'zendframework/zend-debug'];
         yield 'ignored zend-version' => ['zendframework/zend-version', 'zendframework/zend-version'];
@@ -98,7 +97,7 @@ final class ReplacementsTest extends TestCase
         ];
     }
 
-    public function ignoredZFCampusPackages() : Generator
+    public function ignoredZFCampusPackages(): Generator
     {
         yield 'ignored zf-apigility-example' => ['zfcampus/zf-apigility-example', 'zfcampus/zf-apigility-example'];
         yield 'ignored zf-angular' => ['zfcampus/zf-angular', 'zfcampus/zf-angular'];

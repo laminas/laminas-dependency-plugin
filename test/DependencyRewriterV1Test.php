@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @see       https://github.com/laminas/laminas-dependency-plugin for the canonical source repository
  * @copyright https://github.com/laminas/laminas-dependency-plugin/blob/master/COPYRIGHT.md
@@ -22,10 +23,8 @@ use Composer\Plugin\PreCommandRunEvent;
 use Composer\Repository\RepositoryManager;
 use Laminas\DependencyPlugin\DependencyRewriterV1;
 use Laminas\DependencyPlugin\DependencySolvingCapableInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Prophecy\Argument;
-use Prophecy\PhpUnit\ProphecyTrait;
-use Prophecy\Prophecy\ObjectProphecy;
 use ReflectionProperty;
 use Symfony\Component\Console\Input\InputInterface;
 
@@ -34,133 +33,144 @@ use function version_compare;
 
 final class DependencyRewriterV1Test extends TestCase
 {
-    use ProphecyTrait;
-
-    /** @var Composer|ObjectProphecy */
+    /**
+     * @var Composer|MockObject
+     * @psalm-var Composer&MockObject
+     */
     private $composer;
 
-    /** @var IOInterface|ObjectProphecy */
+    /**
+     * @var IOInterface|MockObject
+     * @psalm-var IOInterface&MockObject
+     */
     private $io;
 
     /** @var DependencyRewriterV1 */
     private $plugin;
 
-    public function setUp() : void
+    public function setUp(): void
     {
         if (! version_compare(PluginInterface::PLUGIN_API_VERSION, '2.0', 'lt')) {
             $this->markTestSkipped('Only executing these tests for composer v1');
         }
 
-        $this->composer = $this->prophesize(Composer::class);
-        $this->io = $this->prophesize(IOInterface::class);
-        $this->plugin = new DependencyRewriterV1();
+        $this->composer = $this->createMock(Composer::class);
+        $this->io       = $this->createMock(IOInterface::class);
+        $this->plugin   = new DependencyRewriterV1();
     }
 
-    public function activatePlugin(DependencyRewriterV1 $plugin) : void
+    public function activatePlugin(DependencyRewriterV1 $plugin): void
     {
         $this->io
-             ->write(
-                 Argument::containingString('Activating Laminas\DependencyPlugin\DependencyRewriterV1'),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+            ->expects($this->once())
+            ->method('write')
+            ->with(
+                $this->stringContains('Activating Laminas\DependencyPlugin\DependencyRewriterV1'),
+                true,
+                IOInterface::DEBUG
+            );
 
-        $plugin->activate($this->composer->reveal(), $this->io->reveal());
+        $plugin->activate($this->composer, $this->io);
     }
 
-    public function testOnPreCommandRunDoesNothingIfCommandIsNotRequire() : void
-    {
-        $this->activatePlugin($this->plugin);
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreCommandRun'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
-
-        $event = $this->prophesize(PreCommandRunEvent::class);
-        $event->getCommand()->willReturn('remove')->shouldBeCalled();
-        $event->getInput()->shouldNotBeCalled();
-
-        $this->assertNull($this->plugin->onPreCommandRun($event->reveal()));
-    }
-
-    public function testOnPreCommandDoesNotRewriteNonZFPackageArguments() : void
+    public function testOnPreCommandRunDoesNothingIfCommandIsNotRequire(): void
     {
         $this->activatePlugin($this->plugin);
 
         $this->io
-             ->write(
-                 Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreCommandRun'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+            ->expects($this->once())
+            ->method('write')
+            ->with(
+                $this->stringContains('In Laminas\DependencyPlugin\DependencyRewriterV1::onPreCommandRun'),
+                true,
+                IOInterface::DEBUG
+            );
 
-        $event = $this->prophesize(PreCommandRunEvent::class);
-        $event->getCommand()->willReturn('require')->shouldBeCalled();
+        $event = $this->createMock(PreCommandRunEvent::class);
+        $event->expects($this->once())->method('getCommand')->willReturn('remove');
+        $event->expects($this->never())->method('getInput');
 
-        $input = $this->prophesize(InputInterface::class);
+        $this->assertNull($this->plugin->onPreCommandRun($event));
+    }
+
+    public function testOnPreCommandDoesNotRewriteNonZFPackageArguments(): void
+    {
+        $this->activatePlugin($this->plugin);
+
+        $this->io
+            ->expects($this->once())
+            ->method('write')
+            ->with(
+                $this->stringContains('In Laminas\DependencyPlugin\DependencyRewriterV1::onPreCommandRun'),
+                true,
+                IOInterface::DEBUG
+            );
+
+        $event = $this->createMock(PreCommandRunEvent::class);
+        $eventi->expects($this->once())->method('getCommand')->willReturn('require');
+
+        $input = $this->createMock(InputInterface::class);
         $input
-            ->hasArgument('packages')
+            ->method('hasArgument')
+            ->with('packages')
             ->willReturn(true);
 
         $input
-            ->getArgument('packages')
-            ->willReturn(['symfony/console', 'phpunit/phpunit'])
-            ->shouldBeCalled();
+            ->expects($this->once())
+            ->method('getArgument')
+            ->with('packages')
+            ->willReturn(['symfony/console', 'phpunit/phpunit']);
         $input
-            ->setArgument(
+            ->expects($this->once())
+            ->method('setArgument')
+            ->with(
                 'packages',
                 ['symfony/console', 'phpunit/phpunit']
-            )
-            ->shouldBeCalled();
+            );
 
-        $event->getInput()->will([$input, 'reveal']);
+        $event->method('getInput')->willReturn($input);
 
-        $this->assertNull($this->plugin->onPreCommandRun($event->reveal()));
+        $this->assertNull($this->plugin->onPreCommandRun($event));
     }
 
-    public function testOnPreCommandRewritesZFPackageArguments() : void
+    public function testOnPreCommandRewritesZFPackageArguments(): void
     {
         $this->activatePlugin($this->plugin);
 
         $this->io
-             ->write(
-                 Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreCommandRun'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+            ->expects($this->once())
+            ->method('write')
+            ->with(
+                $this->stringContains(
+                    'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreCommandRun'
+                ),
+                true,
+                IOInterface::DEBUG
+            );
 
-        $event = $this->prophesize(PreCommandRunEvent::class);
-        $event->getCommand()->willReturn('require')->shouldBeCalled();
+        $event = $this->createMock(PreCommandRunEvent::class);
+        $event->expects($this->once())->method('getCommand')->willReturn('require');
 
-        $input = $this->prophesize(InputInterface::class);
+        $input = $this->createMock(InputInterface::class);
         $input
-            ->hasArgument('packages')
+            ->method('hasArgument')
+            ->with('packages')
             ->willReturn(true);
 
         $input
-            ->getArgument('packages')
+            ->expects($this->once())
+            ->method('getArgument')
+            ->with('packages')
             ->willReturn([
                 'zendframework/zend-form',
                 'zfcampus/zf-content-negotiation',
                 'zendframework/zend-expressive-hal',
                 'zendframework/zend-expressive-zendviewrenderer',
-            ])
-            ->shouldBeCalled();
+            ]);
         $input
-            ->setArgument(
+            ->expects($this->once())
+            ->method('setArgument')
+            ->with(
                 'packages',
                 [
                     'laminas/laminas-form',
@@ -168,207 +178,169 @@ final class DependencyRewriterV1Test extends TestCase
                     'mezzio/mezzio-hal',
                     'mezzio/mezzio-laminasviewrenderer',
                 ]
-            )
-            ->shouldBeCalled();
+            );
 
-        $event->getInput()->will([$input, 'reveal']);
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Changing package in current command from zendframework/zend-form to laminas/laminas-form'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+        $event->method('getInput')->willReturn($input);
 
         $this->io
-             ->write(
-                 Argument::containingString(
-                     'Changing package in current command from zfcampus/zf-content-negotiation to'
-                     . ' laminas-api-tools/api-tools-content-negotiation'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+            ->expects($this->exactly(4))
+            ->method('write')
+            ->withConsecutive(
+                [
+                    $this->stringContains(
+                        'Changing package in current command from zendframework/zend-form to laminas/laminas-form'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ],
+                [
+                    $this->stringContains(
+                        'Changing package in current command from zfcampus/zf-content-negotiation to'
+                        . ' laminas-api-tools/api-tools-content-negotiation'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ],
+                [
+                    $this->stringContains(
+                        'Changing package in current command from zendframework/zend-expressive-hal'
+                        . ' to mezzio/mezzio-hal'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ],
+                [
+                    $this->stringContains(
+                        'Changing package in current command from zendframework/zend-expressive-zendviewrenderer'
+                        . ' to mezzio/mezzio-laminasviewrenderer'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ]
+            );
 
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Changing package in current command from zendframework/zend-expressive-hal to mezzio/mezzio-hal'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Changing package in current command from zendframework/zend-expressive-zendviewrenderer'
-                     . ' to mezzio/mezzio-laminasviewrenderer'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
-
-        $this->assertNull($this->plugin->onPreCommandRun($event->reveal()));
+        $this->assertNull($this->plugin->onPreCommandRun($event));
     }
 
-    public function testOnPreDependenciesSolvingIgnoresNonInstallUpdateJobs() : void
+    public function testOnPreDependenciesSolvingIgnoresNonInstallUpdateJobs(): void
     {
         $this->activatePlugin($this->plugin);
 
-        $event = $this->prophesize(InstallerEvent::class);
-        $request = $this->prophesize(Request::class);
-        $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
+        $event   = $this->createMock(InstallerEvent::class);
+        $request = $this->createMock(Request::class);
+        $event->expects($this->once())->method('getRequest')->willReturn($request);
 
         $request
-            ->getJobs()
+            ->expects($this->once())
+            ->method('getJobs')
             ->willReturn([
                 ['cmd' => 'remove'],
-            ])
-            ->shouldBeCalled();
+            ]);
 
         $this->io
-             ->write(
-                 Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+            ->expects($this->once())
+            ->write(
+                $this->stringContains(
+                    'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
+                ),
+                true,
+                IOInterface::DEBUG
+            );
 
-        $this->io
-             ->write(
-                 Argument::containingString('Replacing package'),
-                 true,
-                 IOInterface::VERBOSE
-             )
-             ->shouldNotBeCalled();
-
-        $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
+        $this->assertNull($this->plugin->onPreDependenciesSolving($event));
     }
 
-    public function testOnPreDependenciesSolvingIgnoresJobsWithoutPackageNames() : void
+    public function testOnPreDependenciesSolvingIgnoresJobsWithoutPackageNames(): void
     {
         $this->activatePlugin($this->plugin);
 
-        $event = $this->prophesize(InstallerEvent::class);
-        $request = $this->prophesize(Request::class);
-        $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
+        $event   = $this->createMock(InstallerEvent::class);
+        $request = $this->createMock(Request::class);
+        $event->expects($this->once())->method('getRequest')->willReturn($request);
 
         $request
-            ->getJobs()
+            ->expects($this->once())
+            ->method('getJobs')
             ->willReturn([
                 ['cmd' => 'install'],
-            ])
-            ->shouldBeCalled();
+            ]);
 
         $this->io
-             ->write(
-                 Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+            ->expects($this->once())
+            ->write(
+                $this->stringContains(
+                    'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
+                ),
+                true,
+                IOInterface::DEBUG
+            );
 
-        $this->io
-             ->write(
-                 Argument::containingString('Replacing package'),
-                 true,
-                 IOInterface::VERBOSE
-             )
-             ->shouldNotBeCalled();
-
-        $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
+        $this->assertNull($this->plugin->onPreDependenciesSolving($event));
     }
 
-    public function testOnPreDependenciesSolvingIgnoresNonZFPackages() : void
+    public function testOnPreDependenciesSolvingIgnoresNonZFPackages(): void
     {
         $this->activatePlugin($this->plugin);
 
-        $event = $this->prophesize(InstallerEvent::class);
-        $request = $this->prophesize(Request::class);
-        $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
+        $event   = $this->createMock(InstallerEvent::class);
+        $request = $this->createMock(Request::class);
+        $event->expects($this->once())->method('getRequest')->willReturn($request);
 
         $request
-            ->getJobs()
+            ->expects($this->once())
+            ->method('getJobs')
             ->willReturn([
                 [
-                    'cmd' => 'install',
+                    'cmd'         => 'install',
                     'packageName' => 'symfony/console',
                 ],
-            ])
-            ->shouldBeCalled();
+            ]);
 
         $this->io
-             ->write(
-                 Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+            ->expects($this->once())
+            ->write(
+                $this->stringContains(
+                    'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
+                ),
+                true,
+                IOInterface::DEBUG
+            );
 
-        $this->io
-             ->write(
-                 Argument::containingString('Replacing package'),
-                 true,
-                 IOInterface::VERBOSE
-             )
-             ->shouldNotBeCalled();
-
-        $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
+        $this->assertNull($this->plugin->onPreDependenciesSolving($event));
     }
 
-    public function testOnPreDependenciesSolvingIgnoresZFPackagesWithoutSubstitutions() : void
+    public function testOnPreDependenciesSolvingIgnoresZFPackagesWithoutSubstitutions(): void
     {
         $this->activatePlugin($this->plugin);
 
-        $event = $this->prophesize(InstallerEvent::class);
-        $request = $this->prophesize(Request::class);
-        $event->getRequest()->will([$request, 'reveal'])->shouldBeCalled();
+        $event   = $this->createMock(InstallerEvent::class);
+        $request = $this->createMock(Request::class);
+        $event->expects($this->once())->method('getRequest')->willReturn($request);
 
         $request
-            ->getJobs()
+            ->expects($this->once())
+            ->method('getJobs')
             ->willReturn([
                 [
-                    'cmd' => 'install',
+                    'cmd'         => 'install',
                     'packageName' => 'zendframework/zend-version',
                 ],
-            ])
-            ->shouldBeCalled();
+            ]);
 
         $this->io
-             ->write(
-                 Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+            ->expects($this->once())
+            ->write(
+                $this->stringContains(
+                    'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
+                ),
+                true,
+                IOInterface::DEBUG
+            );
 
-        $this->io
-             ->write(
-                 Argument::containingString('Replacing package'),
-                 true,
-                 IOInterface::VERBOSE
-             )
-             ->shouldNotBeCalled();
-
-        $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
+        $this->assertNull($this->plugin->onPreDependenciesSolving($event));
     }
 
-    public function testOnPreDependenciesSolvingReplacesZFPackagesWithSubstitutions() : void
+    public function testOnPreDependenciesSolvingReplacesZFPackagesWithSubstitutions(): void
     {
         $this->activatePlugin($this->plugin);
 
@@ -377,51 +349,45 @@ final class DependencyRewriterV1Test extends TestCase
         $request->update('zendframework/zend-expressive-template');
         $request->update('zfcampus/zf-apigility');
 
-        $event = $this->prophesize(InstallerEvent::class);
-        $event->getRequest()->willReturn($request)->shouldBeCalled();
+        $event = $this->createMock(InstallerEvent::class);
+        $event->expects($this->once())->method('getRequest')->willReturn($request);
 
         $this->io
-             ->write(
-                 Argument::containingString(
-                     'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+            ->expects($this->exactly(4))
+            ->method('write')
+            ->withConsecutive(
+                [
+                    $this->stringContains(
+                        'In Laminas\DependencyPlugin\DependencyRewriterV1::onPreDependenciesSolving'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ],
+                [
+                    $this->stringContains(
+                        'Replacing package "zendframework/zend-form" with package "laminas/laminas-form"'
+                    ),
+                    true,
+                    IOInterface::VERBOSE,
+                ],
+                [
+                    $this->stringContains(
+                        'Replacing package "zendframework/zend-expressive-template" with'
+                        . ' package "mezzio/mezzio-template"'
+                    ),
+                    true,
+                    IOInterface::VERBOSE,
+                ],
+                [
+                    $this->stringContains(
+                        'Replacing package "zfcampus/zf-apigility" with package "laminas-api-tools/api-tools"'
+                    ),
+                    true,
+                    IOInterface::VERBOSE,
+                ]
+            );
 
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Replacing package "zendframework/zend-form" with package "laminas/laminas-form"'
-                 ),
-                 true,
-                 IOInterface::VERBOSE
-             )
-             ->shouldBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Replacing package "zendframework/zend-expressive-template" with'
-                     . ' package "mezzio/mezzio-template"'
-                 ),
-                 true,
-                 IOInterface::VERBOSE
-             )
-             ->shouldBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Replacing package "zfcampus/zf-apigility" with package "laminas-api-tools/api-tools"'
-                 ),
-                 true,
-                 IOInterface::VERBOSE
-             )
-             ->shouldBeCalled();
-
-        $this->assertNull($this->plugin->onPreDependenciesSolving($event->reveal()));
+        $this->assertNull($this->plugin->onPreDependenciesSolving($event));
 
         $r = new ReflectionProperty($request, 'jobs');
         $r->setAccessible(true);
@@ -430,319 +396,221 @@ final class DependencyRewriterV1Test extends TestCase
         $this->assertSame(
             [
                 [
-                    'cmd' => 'install',
+                    'cmd'         => 'install',
                     'packageName' => 'laminas/laminas-form',
-                    'constraint' => null,
-                    'fixed' => false,
+                    'constraint'  => null,
+                    'fixed'       => false,
                 ],
                 [
-                    'cmd' => 'update',
+                    'cmd'         => 'update',
                     'packageName' => 'mezzio/mezzio-template',
-                    'constraint' => null,
-                    'fixed' => false,
+                    'constraint'  => null,
+                    'fixed'       => false,
                 ],
                 [
-                    'cmd' => 'update',
+                    'cmd'         => 'update',
                     'packageName' => 'laminas-api-tools/api-tools',
-                    'constraint' => null,
-                    'fixed' => false,
+                    'constraint'  => null,
+                    'fixed'       => false,
                 ],
             ],
             $jobs
         );
     }
 
-    public function testPrePackageInstallExitsEarlyForUnsupportedOperations() : void
+    public function testPrePackageInstallExitsEarlyForUnsupportedOperations(): void
     {
         $this->activatePlugin($this->plugin);
 
-        $event = $this->prophesize(PackageEvent::class);
-        $operation = $this->prophesize(Operation\UninstallOperation::class);
+        $event     = $this->createMock(PackageEvent::class);
+        $operation = $this->createMock(Operation\UninstallOperation::class);
 
-        $event->getOperation()->will([$operation, 'reveal'])->shouldBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+        $event->expects($this->once())->method('getOperation')->willReturn($operation);
 
         $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+            ->expects($this->exactly(2))
+            ->method('write')
+            ->withConsecutive(
+                [
+                    $this->stringContains(
+                        'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ],
+                [
+                    $this->stringContains(
+                        'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ]
+            );
 
-        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event->reveal()));
+        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event));
     }
 
-    public function testPrePackageInstallExitsEarlyForNonZFPackages() : void
+    public function testPrePackageInstallExitsEarlyForNonZFPackages(): void
     {
         $this->activatePlugin($this->plugin);
 
-        $event = $this->prophesize(PackageEvent::class);
-        $operation = $this->prophesize(Operation\InstallOperation::class);
-        $package = $this->prophesize(PackageInterface::class);
+        $event     = $this->createMock(PackageEvent::class);
+        $operation = $this->createMock(Operation\InstallOperation::class);
+        $package   = $this->createMock(PackageInterface::class);
 
-        $event->getOperation()->will([$operation, 'reveal'])->shouldBeCalled();
-        $operation->getPackage()->will([$package, 'reveal'])->shouldBeCalled();
-        $package->getName()->willReturn('symfony/console')->shouldBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+        $event->expects($this->once())->method('getOperation')->willReturn($operation);
+        $operation->expects($this->once())->method('getPackage')->willReturn($package);
+        $package->expects($this->once())->method('getName')->willReturn('symfony/console');
 
         $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldNotBeCalled();
+            ->expects($this->exactly(2))
+            ->method('write')
+            ->withConsecutive(
+                [
+                    $this->stringContains(
+                        'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ],
+                [
+                    $this->stringContains(
+                        'Exiting; package "symfony/console" does not have a replacement'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ],
+            );
 
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; package "symfony/console" does not have a replacement'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
-
-        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event->reveal()));
+        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event));
     }
 
-    public function testPrePackageInstallExitsEarlyForZFPackagesWithoutReplacements() : void
+    public function testPrePackageInstallExitsEarlyForZFPackagesWithoutReplacements(): void
     {
         $this->activatePlugin($this->plugin);
 
-        $event = $this->prophesize(PackageEvent::class);
-        $operation = $this->prophesize(Operation\UpdateOperation::class);
-        $package = $this->prophesize(PackageInterface::class);
+        $event     = $this->createMock(PackageEvent::class);
+        $operation = $this->createMock(Operation\UpdateOperation::class);
+        $package   = $this->createMock(PackageInterface::class);
 
-        $event->getOperation()->will([$operation, 'reveal'])->shouldBeCalled();
-        $operation->getTargetPackage()->will([$package, 'reveal'])->shouldBeCalled();
-        $package->getName()->willReturn('zendframework/zend-version')->shouldBeCalled();
+        $event->expects($this->once())->method('getOperation')->willReturn($operation);
+        $operation->expects($this->once())->method('getTargetPackage')->willReturn($package);
+        $package->expects($this->once())->method('getName')->willReturn('zendframework/zend-version');
 
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+        $this
+            ->io
+            ->expects($this->exactly(2))
+            ->method('write')
+            ->withConsecutive(
+                [
+                    $this->stringContains(
+                        'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ],
+                [
+                    $this->stringContains(
+                        'Exiting; while package "zendframework/zend-version" is a ZF package,'
+                        . ' it does not have a replacement'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ]
+            );
 
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldNotBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; package "zendframework/zend-version" does not have a replacement'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldNotBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; while package "zendframework/zend-version" is a ZF package,'
-                     . ' it does not have a replacement'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
-
-        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event->reveal()));
+        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event));
     }
 
-    public function testPrePackageInstallExitsEarlyForZFPackagesWithoutReplacementsForSpecificVersion() : void
+    public function testPrePackageInstallExitsEarlyForZFPackagesWithoutReplacementsForSpecificVersion(): void
     {
         $this->activatePlugin($this->plugin);
 
-        $event = $this->prophesize(PackageEvent::class);
-        $operation = $this->prophesize(Operation\UpdateOperation::class);
-        $package = $this->prophesize(PackageInterface::class);
-        $repositoryManager = $this->prophesize(RepositoryManager::class);
+        $event             = $this->createMock(PackageEvent::class);
+        $operation         = $this->createMock(Operation\UpdateOperation::class);
+        $package           = $this->createMock(PackageInterface::class);
+        $repositoryManager = $this->createMock(RepositoryManager::class);
 
-        $event->getOperation()->will([$operation, 'reveal'])->shouldBeCalled();
-        $operation->getTargetPackage()->will([$package, 'reveal'])->shouldBeCalled();
-        $package->getName()->willReturn('zendframework/zend-mvc')->shouldBeCalled();
-        $package->getVersion()->willReturn('4.0.0')->shouldBeCalled();
-        $this->composer->getRepositoryManager()->will([$repositoryManager, 'reveal'])->shouldBeCalled();
+        $event->expects($this->once())->method('getOperation')->willReturn($operation);
+        $operation->expects($this->once())->method('getTargetPackage')->willReturn($package);
+        $package->expects($this->once())->method('getName')->willReturn('zendframework/zend-mvc');
+        $package->expects($this->once())->method('getVersion')->willReturn('4.0.0');
+        $this->composer->expects($this->once())->method('getRepositoryManager')->willReturn($repositoryManager);
         $repositoryManager
-            ->findPackage('laminas/laminas-mvc', '4.0.0')
-            ->willReturn(null)
-            ->shouldBeCalled();
+            ->expects($this->once())
+            ->method('findPackage')
+            ->with('laminas/laminas-mvc', '4.0.0')
+            ->willReturn(null);
 
         $this->io
-             ->write(
-                 Argument::containingString(
-                     'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+            ->expects($this->exactly(2))
+            ->method('write')
+            ->withConsecutive(
+                [
+                    $this->stringContains(
+                        'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ],
+                [
+                    $this->stringContains(
+                        'Exiting; no replacement package found for package "laminas/laminas-mvc" with version 4.0.0'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ]
+            );
 
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; operation of type ' . get_class($operation->reveal()) . ' not supported'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldNotBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; package "zendframework/zend-version" does not have a replacement'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldNotBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; while package "zendframework/zend-version" is a ZF package,'
-                     . ' it does not have a replacement'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldNotBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; no replacement package found for package "laminas/laminas-mvc" with version 4.0.0'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
-
-        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event->reveal()));
+        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event));
     }
 
-    public function testPrePackageUpdatesPackageNameWhenReplacementExists() : void
+    public function testPrePackageUpdatesPackageNameWhenReplacementExists(): void
     {
         $this->activatePlugin($this->plugin);
 
-        $event = $this->prophesize(PackageEvent::class);
-        $original = new Package('zendframework/zend-mvc', '3.1.0', '3.1.1');
-        $package = new Package('zendframework/zend-mvc', '3.1.1', '3.1.1');
+        $event     = $this->createMock(PackageEvent::class);
+        $original  = new Package('zendframework/zend-mvc', '3.1.0', '3.1.1');
+        $package   = new Package('zendframework/zend-mvc', '3.1.1', '3.1.1');
         $operation = new Operation\UpdateOperation($original, $package);
 
         $replacementPackage = new Package('laminas/laminas-mvc', '3.1.1', '3.1.1');
-        $repositoryManager = $this->prophesize(RepositoryManager::class);
+        $repositoryManager  = $this->createMock(RepositoryManager::class);
 
-        $event->getOperation()->willReturn($operation)->shouldBeCalled();
-        $this->composer->getRepositoryManager()->will([$repositoryManager, 'reveal'])->shouldBeCalled();
+        $event->expects($this->once())->method('getOperation')->willReturn($operation);
+        $this->composer->expects($this->once())->method('getRepositoryManager')->willReturn($repositoryManager);
         $repositoryManager
-            ->findPackage('laminas/laminas-mvc', '3.1.1')
-            ->willReturn($replacementPackage)
-            ->shouldBeCalled();
+            ->expects($this->once())
+            ->method('findPackage')
+            ->with('laminas/laminas-mvc', '3.1.1')
+            ->willReturn($replacementPackage);
 
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldBeCalled();
+        $this
+            ->io
+            ->expects($this->exactly(2))
+            ->method('write')
+            ->withConsecutive(
+                [
+                    $this->stringContains(
+                        'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate'
+                    ),
+                    true,
+                    IOInterface::DEBUG,
+                ],
+                [
+                    $this->stringContains(
+                        'Replacing package zendframework/zend-mvc with package laminas/laminas-mvc, using version 3.1.1'
+                    ),
+                    true,
+                    IOInterface::VERBOSE,
+                ]
+            );
 
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; operation of type ' . get_class($operation) . ' not supported'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldNotBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; package "zendframework/zend-version" does not have a replacement'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldNotBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; while package "zendframework/zend-version" is a ZF package,'
-                     . ' it does not have a replacement'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldNotBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Exiting; no replacement package found for package "laminas/laminas-mvc"'
-                 ),
-                 true,
-                 IOInterface::DEBUG
-             )
-             ->shouldNotBeCalled();
-
-        $this->io
-             ->write(
-                 Argument::containingString(
-                     'Replacing package zendframework/zend-mvc with package laminas/laminas-mvc, using version 3.1.1'
-                 ),
-                 true,
-                 IOInterface::VERBOSE
-             )
-             ->shouldBeCalled();
-
-        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event->reveal()));
+        $this->assertNull($this->plugin->onPrePackageInstallOrUpdate($event));
         $this->assertSame($replacementPackage, $operation->getTargetPackage());
     }
 
-    public function testRewriterImplementsDependencySolvingCapableInterface() : void
+    public function testRewriterImplementsDependencySolvingCapableInterface(): void
     {
         self::assertInstanceOf(DependencySolvingCapableInterface::class, $this->plugin);
     }

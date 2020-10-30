@@ -7,13 +7,12 @@
         "sort-packages": true
     },
     "require": {
-        "php": "^5.6 || ^7.0",
+        "php": "^7.3 || ~8.0.0",
         "composer-plugin-api": "^1.1 || ^2.0"
     },
     "require-dev": {
         "composer/composer": "^1.9 || ^2.0",
         "mikey179/vfsstream": "^1.6",
-        "phpcompatibility/php-compatibility": "^9.3",
         "roave/security-advisories": "dev-master"
     },
     "autoload": {
@@ -39,9 +38,6 @@
         "cs-check": "phpcs",
         "cs-fix": "phpcbf",
         "test": "phpunit --colors=always",
-        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml",
-        "post-install-cmd": "phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility",
-        "post-update-cmd" : "phpcs --config-set installed_paths vendor/phpcompatibility/php-compatibility",
-        "compat": "phpcs --standard=PHPCompatibility src/ -- --runtime-set testVersion 5.6-"
+        "test-coverage": "phpunit --colors=always --coverage-clover clover.xml"
     }
 }

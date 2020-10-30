@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @see       https://github.com/laminas/laminas-dependency-plugin for the canonical source repository
  * @copyright https://github.com/laminas/laminas-dependency-plugin/blob/master/COPYRIGHT.md
@@ -27,12 +28,12 @@ use PHPUnit\Framework\TestCase;
 
 final class DependencyRewriterPluginDelegatorTest extends TestCase
 {
-    public function testWillTriggerActivate() : void
+    public function testWillTriggerActivate(): void
     {
         $composer = $this->createMock(Composer::class);
-        $io = $this->createMock(IOInterface::class);
+        $io       = $this->createMock(IOInterface::class);
 
-        $rewriter = $this->createMock(AbstractDependencyRewriter::class);
+        $rewriter  = $this->createMock(AbstractDependencyRewriter::class);
         $delegator = new DependencyRewriterPluginDelegator($rewriter);
         $rewriter
             ->expects($this->once())
@@ -44,12 +45,11 @@ final class DependencyRewriterPluginDelegatorTest extends TestCase
 
     /**
      * @dataProvider eventsToForward
-     *
      * @param string $event
      */
-    public function testWillForwardEvents(string $rewriter, string $eventMethod, $event) : void
+    public function testWillForwardEvents(string $rewriter, string $eventMethod, $event): void
     {
-        $event = $this->createMock($event);
+        $event    = $this->createMock($event);
         $rewriter = $this->createMock($rewriter);
         $rewriter
             ->expects($this->once())
@@ -62,7 +62,7 @@ final class DependencyRewriterPluginDelegatorTest extends TestCase
         $delegator->$eventMethod($event);
     }
 
-    public function eventsToForward() : Generator
+    public function eventsToForward(): Generator
     {
         yield 'onPreDependenciesSolving' => [
             DependencySolvingCapableInterface::class,
