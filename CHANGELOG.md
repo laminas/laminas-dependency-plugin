@@ -8,21 +8,22 @@ All notable changes to this project will be documented in this file, in reverse 
 
 - Adds support for Composer version 2 releases.
 
-### Changed
 
-- Nothing.
+-----
 
-### Deprecated
+### Release Notes for [2.0.0](https://github.com/laminas/laminas-dependency-plugin/milestone/2)
 
-- Nothing.
 
-### Removed
 
-- Nothing.
+### 2.0.0
 
-### Fixed
+- Total issues resolved: **1**
+- Total pull requests resolved: **1**
+- Total contributors: **1**
 
-- Nothing.
+#### Bug
+
+ - [24: Fix: DependencyRewriterV1 should implement DependencySolvingCapableInterface](https://github.com/laminas/laminas-dependency-plugin/pull/24) thanks to @rieschl
 
 ## 2.0.0beta1 - 2020-07-01
 
