@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace LaminasTest\DependencyPlugin;
 
-use ArrayIterator;
 use Composer\Composer;
 use Composer\Config;
 use Composer\Console\Application;
@@ -27,31 +26,28 @@ use Composer\Plugin\PrePoolCreateEvent;
 use Composer\Repository\InstalledFilesystemRepository;
 use Composer\Repository\RepositoryManager;
 use Composer\Script\Event;
-use Generator;
 use InvalidArgumentException;
-use IteratorAggregate;
 use Laminas\DependencyPlugin\DependencyRewriterV2;
+use LaminasTest\DependencyPlugin\TestAsset\IOWriteExpectations;
 use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamContent;
+use org\bovigo\vfs\vfsStreamFile;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
-use Traversable;
 
 use function array_combine;
 use function array_keys;
 use function array_map;
-use function array_reduce;
 use function array_unshift;
 use function count;
 use function get_class;
-use function implode;
 use function in_array;
 use function json_decode;
 use function json_encode;
 use function sprintf;
-use function strpos;
 use function version_compare;
 
 use const JSON_THROW_ON_ERROR;
@@ -123,65 +119,11 @@ final class DependencyRewriterV2Test extends TestCase
         $plugin->activate($this->composer, $this->io);
     }
 
-    public function prepareIOWriteExpectations(string ...$messages): object
+    public function prepareIOWriteExpectations(string ...$messages): IOWriteExpectations
     {
         array_unshift($messages, 'Activating Laminas\DependencyPlugin\DependencyRewriterV2');
 
-        $ioWriteExpectations = new class ($messages) implements IteratorAggregate {
-            /**
-             * @var array
-             * @psalm-var array<string, bool>
-             */
-            private $messages = [];
-
-            /**
-             * @param string[] $messages
-             * @psalm-param array<array-key, string> $messages
-             */
-            public function __construct(array $messages)
-            {
-                foreach ($messages as $message) {
-                    $this->messages[$message] = false;
-                }
-            }
-
-            public function __toString(): string
-            {
-                $unseenMessages = [];
-                foreach ($this->messages as $message => $seen) {
-                    if ($seen) {
-                        continue;
-                    }
-                    $unseenMessages[] = sprintf('- %s', $message);
-                }
-
-                return implode("\n", $unseenMessages);
-            }
-
-            public function getIterator(): Traversable
-            {
-                return new ArrayIterator(array_keys($this->messages));
-            }
-
-            public function matches(string $message): bool
-            {
-                foreach ($this as $expectedMessage) {
-                    if (false !== strpos($message, $expectedMessage)) {
-                        $this->messages[$expectedMessage] = true;
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            public function foundAll(): bool
-            {
-                return array_reduce($this->messages, function ($found, $flag): bool {
-                    return $found && $flag;
-                }, true);
-            }
-        };
+        $ioWriteExpectations = new IOWriteExpectations($messages);
 
         $this->io
             ->expects($this->any())
@@ -195,12 +137,13 @@ final class DependencyRewriterV2Test extends TestCase
         return $ioWriteExpectations;
     }
 
-    public function assertIOWriteReceivedAllExpectedMessages(object $ioWriteExpectations): void
+    public function assertIOWriteReceivedAllExpectedMessages(IOWriteExpectations $ioWriteExpectations): void
     {
         $this->assertTrue(
             $ioWriteExpectations->foundAll(),
             sprintf(
                 "The following expected messages were not emitted:\n%s",
+                /** @psalm-suppress InvalidCast */
                 (string) $ioWriteExpectations
             )
         );
@@ -450,8 +393,10 @@ final class DependencyRewriterV2Test extends TestCase
         array $definition,
         array $expectedDefinition
     ): void {
-        $factory      = $this->createApplicationFactory();
-        $directory    = vfsStream::setup();
+        $factory   = $this->createApplicationFactory();
+        $directory = vfsStream::setup();
+
+        /** @psalm-var vfsStreamFile $composerJson */
         $composerJson = vfsStream::newFile('composer.json')
             ->withContent(json_encode($definition, JSON_THROW_ON_ERROR));
         $directory->addChild($composerJson);
@@ -461,6 +406,7 @@ final class DependencyRewriterV2Test extends TestCase
             ->method('isDebug')
             ->willReturn(false);
 
+        /** @psalm-var array<array-key, string> $zendPackageNames */
         $zendPackageNames = array_keys($packages);
         $zendPackages     = array_combine(
             $zendPackageNames,
@@ -522,6 +468,7 @@ final class DependencyRewriterV2Test extends TestCase
         $this->activatePlugin($plugin);
         $plugin->onPostAutoloadDump($event);
 
+        /** @psalm-var array $decoded */
         $decoded = json_decode($composerJson->getContent(), true, 512, JSON_THROW_ON_ERROR);
         $this->assertEquals($expectedDefinition, $decoded);
 
@@ -564,7 +511,9 @@ final class DependencyRewriterV2Test extends TestCase
             ->method('getPackage')
             ->willReturn($rootPackage);
 
-        $vendor    = vfsStream::setup();
+        $vendor = vfsStream::setup();
+
+        /** @psalm-var vfsStreamContent $installed */
         $installed = vfsStream::newFile('installed.json')
             ->withContent(<<<TXT
             {
@@ -623,7 +572,9 @@ final class DependencyRewriterV2Test extends TestCase
             ->method('getPackage')
             ->willReturn($rootPackage);
 
-        $vendor    = vfsStream::setup();
+        $vendor = vfsStream::setup();
+
+        /** @psalm-var vfsStreamContent $installed */
         $installed = vfsStream::newFile('installed.json')
             ->withContent(<<<TXT
             {
@@ -708,7 +659,9 @@ final class DependencyRewriterV2Test extends TestCase
             ->method('getPackage')
             ->willReturn($rootPackage);
 
-        $vendor    = vfsStream::setup();
+        $vendor = vfsStream::setup();
+
+        /** @psalm-var vfsStreamContent $installed */
         $installed = vfsStream::newFile('installed.json')
             ->withContent(<<<TXT
             {
@@ -802,7 +755,9 @@ final class DependencyRewriterV2Test extends TestCase
             ->method('getPackage')
             ->willReturn($rootPackage);
 
-        $vendor    = vfsStream::setup();
+        $vendor = vfsStream::setup();
+
+        /** @psalm-var vfsStreamContent $installed */
         $installed = vfsStream::newFile('installed.json')
             ->withContent(<<<TXT
             {
@@ -885,7 +840,15 @@ final class DependencyRewriterV2Test extends TestCase
         $this->assertIOWriteReceivedAllExpectedMessages($ioWriteExpectations);
     }
 
-    public function composerDefinitionWithZFPackageRequirement(): Generator
+    /**
+     * @psalm-suppress MoreSpecificReturnType
+     * @psalm-return iterable<string, array{
+     *     0: array<string, string>,
+     *     1: array<string, array<string, string>>,
+     *     2: array<string, array<string, string>>,
+     * }>
+     */
+    public function composerDefinitionWithZFPackageRequirement(): iterable
     {
         yield 'require' => [
             [

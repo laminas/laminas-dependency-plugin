@@ -30,6 +30,7 @@ use function is_array;
 use function ksort;
 use function sprintf;
 
+/** @psalm-suppress PropertyNotSetInConstructor */
 final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
     PoolCapableInterface,
     AutoloadDumpCapableInterface
@@ -49,8 +50,10 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
     public function __construct(?callable $applicationFactory = null, $composerFile = '')
     {
         parent::__construct();
+
+        /** @psalm-suppress MixedAssignment */
         $this->composerFile       = $composerFile ?: Factory::getComposerFile();
-        $this->applicationFactory = $applicationFactory ?: static function () {
+        $this->applicationFactory = $applicationFactory ?: static function (): Application {
             return new Application();
         };
     }
@@ -61,6 +64,8 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
      * When a 3rd party package has dependencies on ZF packages, this method
      * will detect the request to install a ZF package, and rewrite it to use a
      * Laminas variant at the equivalent version, if one exists.
+     *
+     * @return void
      */
     public function onPrePackageInstallOrUpdate(PackageEvent $event)
     {
@@ -127,6 +132,9 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
         $this->zendPackagesInstalled[] = $package;
     }
 
+    /**
+     * @return void
+     */
     public function onPostAutoloadDump(Event $event)
     {
         if (! $this->zendPackagesInstalled) {
@@ -172,6 +180,9 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
         $this->updateLockFile();
     }
 
+    /**
+     * @return void
+     */
     public function onPrePoolCreate(PrePoolCreateEvent $event)
     {
         $this->output(sprintf('In %s', __METHOD__));
@@ -226,7 +237,7 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
      * With `composer update --lock`, all missing packages are being installed aswell.
      * This is where we slip-stream in with our plugin.
      */
-    private function updateLockFile()
+    private function updateLockFile(): void
     {
         $application = call_user_func($this->applicationFactory);
         assert($application instanceof Application);
@@ -248,6 +259,7 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
      */
     private function createInstalledRepository(Composer $composer, IOInterface $io)
     {
+        /** @var string $vendor */
         $vendor = $composer->getConfig()->get('vendor-dir');
 
         return new InstalledFilesystemRepository(
@@ -273,21 +285,21 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
      */
     private function updateRootRequirements(array $definition, $packageName, $replacementPackageName)
     {
-        $sortPackages = false;
-        if (isset($definition['config']['sort-packages'])) {
-            $sortPackages = $definition['config']['sort-packages'];
-        }
+        /** @var bool $sortPackages */
+        $sortPackages = $definition['config']['sort-packages'] ?? false;
 
         foreach (['require', 'require-dev'] as $key) {
             if (! isset($definition[$key])) {
                 continue;
             }
 
+            /** @var array $requirements */
             $requirements = $definition[$key];
             if (! isset($requirements[$packageName])) {
                 continue;
             }
 
+            /** @psalm-suppress MixedAssignment */
             $requirements[$replacementPackageName] = $requirements[$packageName];
             unset($requirements[$packageName]);
             if ($sortPackages) {

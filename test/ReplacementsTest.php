@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace LaminasTest\DependencyPlugin;
 
-use Generator;
 use Laminas\DependencyPlugin\Replacements;
 use PHPUnit\Framework\TestCase;
 
@@ -36,7 +35,10 @@ final class ReplacementsTest extends TestCase
         $this->assertEquals($expectedPackageName, $transformedPackageName);
     }
 
-    public function zendToLaminasPackageNames(): Generator
+    /**
+     * @psalm-return iterable<array-key, array{0: string, 1: string}>
+     */
+    public function zendToLaminasPackageNames(): iterable
     {
         yield 'zendframework/zenddiagnostics' => ['zendframework/zenddiagnostics', 'laminas/laminas-diagnostics'];
         yield 'zendframework/zendoauth' => ['zendframework/zendoauth', 'laminas/laminas-oauth'];
@@ -83,7 +85,10 @@ final class ReplacementsTest extends TestCase
         yield 'zendframework/zend-* regex' => ['zendframework/zend-config', 'laminas/laminas-config'];
     }
 
-    public function ignoredZendPackages(): Generator
+    /**
+     * @psalm-return iterable<array-key, array{0: string, 1: string}>
+     */
+    public function ignoredZendPackages(): iterable
     {
         yield 'ignored zend-debug' => ['zendframework/zend-debug', 'zendframework/zend-debug'];
         yield 'ignored zend-version' => ['zendframework/zend-version', 'zendframework/zend-version'];
@@ -97,7 +102,10 @@ final class ReplacementsTest extends TestCase
         ];
     }
 
-    public function ignoredZFCampusPackages(): Generator
+    /**
+     * @psalm-return iterable<array-key, array{0: string, 1: string}>
+     */
+    public function ignoredZFCampusPackages(): iterable
     {
         yield 'ignored zf-apigility-example' => ['zfcampus/zf-apigility-example', 'zfcampus/zf-apigility-example'];
         yield 'ignored zf-angular' => ['zfcampus/zf-angular', 'zfcampus/zf-angular'];

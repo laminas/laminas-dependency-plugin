@@ -10,7 +10,7 @@ env:
     - TEST=false
     - CS_CHECK=false
     - COMPOSER_ARGS="--no-interaction --ignore-platform-reqs"
-    - TEST_DEPS="phpunit/phpunit:^9.3 laminas/laminas-coding-standard:~2.1.0"
+    - TEST_DEPS="phpunit/phpunit:^9.3 laminas/laminas-coding-standard:~2.1.0 vimeo/psalm psalm/plugin-phpunit"
 
 matrix:
   include:
@@ -47,6 +47,7 @@ install:
 script:
   - if [[ $TEST_COVERAGE == 'true' ]]; then composer test-coverage ; else if [[ $TEST != 'false' ]]; then  composer test ; fi ; fi
   - if [[ $CS_CHECK == 'true' ]]; then composer cs-check ; fi
+  - if [[ $TEST_COVERAGE == 'true' ]]; then composer static-analysis ; fi
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -cF composer${COMPOSER_VERSION}

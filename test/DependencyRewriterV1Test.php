@@ -10,7 +10,6 @@ declare(strict_types=1);
 
 namespace LaminasTest\DependencyPlugin;
 
-use ArrayIterator;
 use Composer\Composer;
 use Composer\DependencyResolver\Operation;
 use Composer\DependencyResolver\Request;
@@ -22,22 +21,17 @@ use Composer\Package\PackageInterface;
 use Composer\Plugin\PluginInterface;
 use Composer\Plugin\PreCommandRunEvent;
 use Composer\Repository\RepositoryManager;
-use IteratorAggregate;
 use Laminas\DependencyPlugin\DependencyRewriterV1;
 use Laminas\DependencyPlugin\DependencySolvingCapableInterface;
+use LaminasTest\DependencyPlugin\TestAsset\IOWriteExpectations;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
 use Symfony\Component\Console\Input\InputInterface;
-use Traversable;
 
-use function array_keys;
-use function array_reduce;
 use function array_unshift;
 use function get_class;
-use function implode;
 use function sprintf;
-use function strpos;
 use function version_compare;
 
 final class DependencyRewriterV1Test extends TestCase
@@ -73,65 +67,11 @@ final class DependencyRewriterV1Test extends TestCase
         $plugin->activate($this->composer, $this->io);
     }
 
-    public function prepareIOWriteExpectations(string ...$messages): object
+    public function prepareIOWriteExpectations(string ...$messages): IOWriteExpectations
     {
         array_unshift($messages, 'Activating Laminas\DependencyPlugin\DependencyRewriterV1');
 
-        $ioWriteExpectations = new class ($messages) implements IteratorAggregate {
-            /**
-             * @var array
-             * @psalm-var array<string, bool>
-             */
-            private $messages = [];
-
-            /**
-             * @param string[] $messages
-             * @psalm-param array<array-key, string> $messages
-             */
-            public function __construct(array $messages)
-            {
-                foreach ($messages as $message) {
-                    $this->messages[$message] = false;
-                }
-            }
-
-            public function __toString(): string
-            {
-                $unseenMessages = [];
-                foreach ($this->messages as $message => $seen) {
-                    if ($seen) {
-                        continue;
-                    }
-                    $unseenMessages[] = sprintf('- %s', $message);
-                }
-
-                return implode("\n", $unseenMessages);
-            }
-
-            public function getIterator(): Traversable
-            {
-                return new ArrayIterator(array_keys($this->messages));
-            }
-
-            public function matches(string $message): bool
-            {
-                foreach ($this as $expectedMessage) {
-                    if (false !== strpos($message, $expectedMessage)) {
-                        $this->messages[$expectedMessage] = true;
-                        return true;
-                    }
-                }
-
-                return false;
-            }
-
-            public function foundAll(): bool
-            {
-                return array_reduce($this->messages, function ($found, $flag): bool {
-                    return $found && $flag;
-                }, true);
-            }
-        };
+        $ioWriteExpectations = new IOWriteExpectations($messages);
 
         $this->io
             ->expects($this->any())
@@ -145,7 +85,7 @@ final class DependencyRewriterV1Test extends TestCase
         return $ioWriteExpectations;
     }
 
-    public function assertIOWriteReceivedAllExpectedMessages(object $ioWriteExpectations): void
+    public function assertIOWriteReceivedAllExpectedMessages(IOWriteExpectations $ioWriteExpectations): void
     {
         $this->assertTrue(
             $ioWriteExpectations->foundAll(),

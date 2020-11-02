@@ -12,5 +12,8 @@ use Composer\Script\Event;
 
 interface AutoloadDumpCapableInterface extends RewriterInterface
 {
+    /**
+     * @return void
+     */
     public function onPostAutoloadDump(Event $event);
 }

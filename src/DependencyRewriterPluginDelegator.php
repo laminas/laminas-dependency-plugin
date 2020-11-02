@@ -43,6 +43,7 @@ class DependencyRewriterPluginDelegator implements EventSubscriberInterface, Plu
     public static function getSubscribedEvents()
     {
         if (version_compare(PluginInterface::PLUGIN_API_VERSION, '2.0', 'lt')) {
+            /** @psalm-suppress UndefinedConstant */
             return [
                 InstallerEvents::PRE_DEPENDENCIES_SOLVING => ['onPreDependenciesSolving', 1000],
                 PackageEvents::PRE_PACKAGE_INSTALL        => ['onPrePackageInstallOrUpdate', 1000],
@@ -60,6 +61,9 @@ class DependencyRewriterPluginDelegator implements EventSubscriberInterface, Plu
         ];
     }
 
+    /**
+     * @return void
+     */
     public function onPreDependenciesSolving(InstallerEvent $event)
     {
         $rewriter = $this->rewriter;
@@ -67,16 +71,25 @@ class DependencyRewriterPluginDelegator implements EventSubscriberInterface, Plu
         $rewriter->onPreDependenciesSolving($event);
     }
 
+    /**
+     * @return void
+     */
     public function onPrePackageInstallOrUpdate(PackageEvent $event)
     {
         $this->rewriter->onPrePackageInstallOrUpdate($event);
     }
 
+    /**
+     * @return void
+     */
     public function onPreCommandRun(PreCommandRunEvent $event)
     {
         $this->rewriter->onPreCommandRun($event);
     }
 
+    /**
+     * @return void
+     */
     public function onPrePoolCreate(PrePoolCreateEvent $event)
     {
         $rewriter = $this->rewriter;
@@ -84,6 +97,9 @@ class DependencyRewriterPluginDelegator implements EventSubscriberInterface, Plu
         $rewriter->onPrePoolCreate($event);
     }
 
+    /**
+     * @return void
+     */
     public function onPostAutoloadDump(Event $event)
     {
         $rewriter = $this->rewriter;
@@ -91,15 +107,24 @@ class DependencyRewriterPluginDelegator implements EventSubscriberInterface, Plu
         $rewriter->onPostAutoloadDump($event);
     }
 
+    /**
+     * @return void
+     */
     public function activate(Composer $composer, IOInterface $io)
     {
         $this->rewriter->activate($composer, $io);
     }
 
+    /**
+     * @return void
+     */
     public function deactivate(Composer $composer, IOInterface $io)
     {
     }
 
+    /**
+     * @return void
+     */
     public function uninstall(Composer $composer, IOInterface $io)
     {
     }

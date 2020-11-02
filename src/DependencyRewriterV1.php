@@ -18,6 +18,7 @@ use function get_class;
 use function in_array;
 use function sprintf;
 
+/** @psalm-suppress PropertyNotSetInConstructor */
 final class DependencyRewriterV1 extends AbstractDependencyRewriter implements DependencySolvingCapableInterface
 {
     /**
@@ -28,15 +29,24 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
      * requests an `install` or `update`, this method will rewrite any such
      * packages to their Laminas equivalents prior to attempting to resolve
      * dependencies, ensuring the Laminas versions are installed.
+     *
+     * @return void
      */
     public function onPreDependenciesSolving(InstallerEvent $event)
     {
         $this->output(sprintf('<info>In %s</info>', __METHOD__), IOInterface::DEBUG);
+        /** @psalm-suppress UndefinedMethod,MixedAssignment */
         $request = $event->getRequest();
-        $jobs    = $request->getJobs();
         $changes = false;
 
+        /**
+         * @psalm-suppress MixedMethodCall
+         * @psalm-var array<array-key, array<string, string>> $jobs
+         */
+        $jobs = $request->getJobs();
+
         foreach ($jobs as $index => $job) {
+            /** @psalm-var array<string, string> $job */
             if (! isset($job['cmd']) || ! in_array($job['cmd'], ['install', 'update'], true)) {
                 continue;
             }
@@ -70,6 +80,7 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
             return;
         }
 
+        /** @psalm-suppress MixedArgument */
         $this->updateProperty($request, 'jobs', $jobs);
     }
 
@@ -79,6 +90,8 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
      * When a 3rd party package has dependencies on ZF packages, this method
      * will detect the request to install a ZF package, and rewrite it to use a
      * Laminas variant at the equivalent version, if one exists.
+     *
+     * @return void
      */
     public function onPrePackageInstallOrUpdate(PackageEvent $event)
     {
@@ -144,7 +157,7 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
         $this->replacePackageInOperation($replacementPackage, $operation);
     }
 
-    private function replacePackageInOperation(PackageInterface $replacement, Operation\OperationInterface $operation)
+    private function replacePackageInOperation(PackageInterface $replacement, Operation\OperationInterface $operation): void
     {
         $this->updateProperty(
             $operation,
@@ -154,15 +167,19 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
     }
 
     /**
-     * @param object $object
-     * @param string $property
      * @param mixed $value
      */
-    private function updateProperty($object, $property, $value)
+    private function updateProperty(object $object, string $property, $value): void
     {
-        // @phpcs:ignore WebimpressCodingStandard.PHP.StaticCallback.Static
-        (function ($object, $property, $value) {
+        // phpcs:disable WebimpressCodingStandard.PHP.StaticCallback.Static
+        /**
+         * @param mixed $value
+         * @psalm-suppress MissingClosureParamType
+         * @psalm-suppress PossiblyInvalidFunctionCall
+         */
+        (function (object $object, string $property, $value): void {
             $object->$property = $value;
         })->bindTo($object, $object)($object, $property, $value);
+        // phpcs:enable
     }
 }

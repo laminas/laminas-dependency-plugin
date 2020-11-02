@@ -17,7 +17,6 @@ use Composer\IO\IOInterface;
 use Composer\Plugin\PreCommandRunEvent;
 use Composer\Plugin\PrePoolCreateEvent;
 use Composer\Script\Event;
-use Generator;
 use Laminas\DependencyPlugin\AbstractDependencyRewriter;
 use Laminas\DependencyPlugin\AutoloadDumpCapableInterface;
 use Laminas\DependencyPlugin\DependencyRewriterPluginDelegator;
@@ -45,9 +44,10 @@ final class DependencyRewriterPluginDelegatorTest extends TestCase
 
     /**
      * @dataProvider eventsToForward
-     * @param string $event
+     * @psalm-param class-string $rewriter
+     * @psalm-param class-string $event
      */
-    public function testWillForwardEvents(string $rewriter, string $eventMethod, $event): void
+    public function testWillForwardEvents(string $rewriter, string $eventMethod, string $event): void
     {
         $event    = $this->createMock($event);
         $rewriter = $this->createMock($rewriter);
@@ -62,7 +62,10 @@ final class DependencyRewriterPluginDelegatorTest extends TestCase
         $delegator->$eventMethod($event);
     }
 
-    public function eventsToForward(): Generator
+    /**
+     * @psalm-return iterable<array-key, array{0: class-string, 1: string, 2: class-string}>
+     */
+    public function eventsToForward(): iterable
     {
         yield 'onPreDependenciesSolving' => [
             DependencySolvingCapableInterface::class,

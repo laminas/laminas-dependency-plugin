@@ -15,6 +15,9 @@ use Composer\Plugin\PreCommandRunEvent;
 
 interface RewriterInterface
 {
+    /**
+     * @return void
+     */
     public function activate(Composer $composer, IOInterface $io);
 
     /**
@@ -24,11 +27,15 @@ interface RewriterInterface
      * this listener will replace the argument with the equivalent Laminas
      * package. This ensures that the `composer.json` file is written to
      * reflect the package installed.
+     *
+     * @return void
      */
     public function onPreCommandRun(PreCommandRunEvent $event);
 
     /**
      * When a ZF package is installed or updated, ensure that its being replaced after installation/update is finished.
+     *
+     * @return void
      */
     public function onPrePackageInstallOrUpdate(PackageEvent $event);
 }

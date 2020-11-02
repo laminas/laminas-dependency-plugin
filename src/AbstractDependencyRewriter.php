@@ -16,16 +16,24 @@ use Composer\Plugin\PreCommandRunEvent;
 use function array_map;
 use function array_shift;
 use function in_array;
+use function is_array;
 use function preg_split;
 use function reset;
 use function sprintf;
 
+/** @psalm-suppress PropertyNotSetInConstructor */
 abstract class AbstractDependencyRewriter implements RewriterInterface
 {
-    /** @var Composer */
+    /**
+     * @psalm-suppress PropertyNotSetInConstructor
+     * @var Composer
+     */
     protected $composer;
 
-    /** @var IOInterface */
+    /**
+     * @psalm-suppress PropertyNotSetInConstructor
+     * @var IOInterface
+     */
     protected $io;
 
     /** @var Replacements */
@@ -36,6 +44,9 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
         $this->replacements = new Replacements();
     }
 
+    /**
+     * @return void
+     */
     public function activate(Composer $composer, IOInterface $io)
     {
         $this->composer = $composer;
@@ -50,6 +61,8 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
      * this listener will replace the argument with the equivalent Laminas
      * package. This ensures that the `composer.json` file is written to
      * reflect the package installed.
+     *
+     * @return void
      */
     public function onPreCommandRun(PreCommandRunEvent $event)
     {
@@ -72,9 +85,10 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
             return;
         }
 
+        $packages = $input->getArgument('packages');
         $input->setArgument(
             'packages',
-            array_map([$this, 'updatePackageArgument'], $input->getArgument('packages'))
+            is_array($packages) ? array_map([$this, 'updatePackageArgument'], $packages) : []
         );
     }
 
@@ -84,7 +98,7 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
      * @param string $message
      * @param int $verbosity
      */
-    protected function output($message, $verbosity = IOInterface::NORMAL)
+    protected function output($message, $verbosity = IOInterface::NORMAL): void
     {
         $this->io->write($message, true, $verbosity);
     }
