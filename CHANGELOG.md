@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Added
 
-- Nothing.
+- [#25](https://github.com/laminas/laminas-dependency-plugin/pull/25) adds support for PHP 8.
 
 ### Changed
 
@@ -18,7 +18,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Removed
 
-- Nothing.
+- [#25](https://github.com/laminas/laminas-dependency-plugin/pull/25) removes support for PHP versions prior to 7.3.
 
 ### Fixed
 
