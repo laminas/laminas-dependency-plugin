@@ -157,8 +157,10 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
         $this->replacePackageInOperation($replacementPackage, $operation);
     }
 
-    private function replacePackageInOperation(PackageInterface $replacement, Operation\OperationInterface $operation): void
-    {
+    private function replacePackageInOperation(
+        PackageInterface $replacement,
+        Operation\OperationInterface $operation
+    ): void {
         $this->updateProperty(
             $operation,
             $operation instanceof Operation\UpdateOperation ? 'targetPackage' : 'package',
