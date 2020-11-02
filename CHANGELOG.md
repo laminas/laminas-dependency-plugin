@@ -2,27 +2,33 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.1.0 - TBD
+## 2.1.0 - 2020-11-02
 
 ### Added
 
 - [#25](https://github.com/laminas/laminas-dependency-plugin/pull/25) adds support for PHP 8.
 
-### Changed
-
-- Nothing.
-
-### Deprecated
-
-- Nothing.
-
 ### Removed
 
 - [#25](https://github.com/laminas/laminas-dependency-plugin/pull/25) removes support for PHP versions prior to 7.3.
 
-### Fixed
 
-- Nothing.
+-----
+
+### Release Notes for [2.1.0](https://github.com/laminas/laminas-dependency-plugin/milestone/4)
+
+Feature release (minor)
+
+### 2.1.0
+
+- Total issues resolved: **1**
+- Total pull requests resolved: **2**
+- Total contributors: **2**
+
+#### Enhancement
+
+ - [26: Add psalm integration](https://github.com/laminas/laminas-dependency-plugin/pull/26) thanks to @weierophinney and @boesing
+ - [25: Add support for PHP 8](https://github.com/laminas/laminas-dependency-plugin/pull/25) thanks to @weierophinney
 
 ## 2.0.0 - 2020-10-30
 
