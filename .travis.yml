@@ -10,7 +10,8 @@ env:
     - TEST=false
     - CS_CHECK=false
     - COMPOSER_ARGS="--no-interaction --ignore-platform-reqs"
-    - TEST_DEPS="phpunit/phpunit:^9.3 laminas/laminas-coding-standard:~2.1.0 vimeo/psalm psalm/plugin-phpunit"
+    - TEST_DEPS="phpunit/phpunit:^9.3 laminas/laminas-coding-standard:~2.1.0"
+    - STATIC_ANALYSIS_DEPS="vimeo/psalm psalm/plugin-phpunit"
 
 matrix:
   include:
@@ -28,6 +29,7 @@ matrix:
       env:
         - COMPOSER_VERSION=2
         - TEST_COVERAGE=true
+        - STATIC_ANALYSIS=true
     - php: nightly
       env:
     - php: nightly
@@ -42,12 +44,13 @@ install:
   - if [[ $COMPOSER_VERSION == "1" ]]; then travis_retry composer update composer/* --prefer-lowest ; fi
   - if [[ $TEST == 'true' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $TEST_DEPS ; fi
   - if [[ $TEST_COVERAGE == 'true' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $TEST_DEPS ; fi
+  - if [[ $STATIC_ANALYSIS == 'true' ]]; then travis_retry composer require --dev $COMPOSER_ARGS $STATIC_ANALYSIS_DEPS ; fi
   - stty cols 120 && composer show
 
 script:
   - if [[ $TEST_COVERAGE == 'true' ]]; then composer test-coverage ; else if [[ $TEST != 'false' ]]; then  composer test ; fi ; fi
   - if [[ $CS_CHECK == 'true' ]]; then composer cs-check ; fi
-  - if [[ $TEST_COVERAGE == 'true' ]]; then composer static-analysis ; fi
+  - if [[ $STATIC_ANALYSIS == 'true' ]]; then composer static-analysis ; fi
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) -cF composer${COMPOSER_VERSION}
