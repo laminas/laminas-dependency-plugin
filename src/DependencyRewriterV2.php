@@ -19,7 +19,9 @@ use Composer\Package\PackageInterface;
 use Composer\Plugin\PrePoolCreateEvent;
 use Composer\Repository\InstalledFilesystemRepository;
 use Composer\Script\Event;
+use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
+use Symfony\Component\Console\Input\InputInterface;
 
 use function assert;
 use function call_user_func;
@@ -35,8 +37,13 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
     PoolCapableInterface,
     AutoloadDumpCapableInterface
 {
+    public const COMPOSER_LOCK_UPDATE_OPTIONS = [
+        'ignore-platform-reqs',
+        'ignore-platform-req',
+    ];
+
     /** @var PackageInterface[] */
-    private $zendPackagesInstalled = [];
+    public $zendPackagesInstalled = [];
 
     /** @var callable */
     private $applicationFactory;
@@ -44,18 +51,22 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
     /** @var string */
     private $composerFile;
 
-    /**
-     * @param string $composerFile
-     */
-    public function __construct(?callable $applicationFactory = null, $composerFile = '')
-    {
+    /** @var InputInterface */
+    private $input;
+
+    public function __construct(
+        ?callable $applicationFactory = null,
+        string $composerFile = '',
+        ?InputInterface $input = null
+    ) {
         parent::__construct();
 
         /** @psalm-suppress MixedAssignment */
         $this->composerFile       = $composerFile ?: Factory::getComposerFile();
-        $this->applicationFactory = $applicationFactory ?: static function (): Application {
+        $this->applicationFactory = $applicationFactory ?? static function (): Application {
             return new Application();
         };
+        $this->input              = $input ?? new ArgvInput();
     }
 
     /**
@@ -251,6 +262,14 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
             '--working-dir' => dirname($this->composerFile),
         ];
 
+        foreach (self::COMPOSER_LOCK_UPDATE_OPTIONS as $optionName) {
+            if (! $this->input->hasOption($optionName)) {
+                continue;
+            }
+
+            $input[sprintf('--%s', $optionName)] = $this->input->getOption($optionName);
+        }
+
         $application->run(new ArrayInput($input));
     }
 
@@ -313,6 +332,8 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
     }
 
     /**
+     * @deprecated Please use public property {@see DependencyRewriterV2::$zendPackagesInstalled} instead.
+     *
      * @return PackageInterface[]
      */
     public function getZendPackagesInstalled()
