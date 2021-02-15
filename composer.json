@@ -15,7 +15,9 @@
         "laminas/laminas-coding-standard": "^2.1",
         "mikey179/vfsstream": "^1.6",
         "phpunit/phpunit": "^9.5",
-        "roave/security-advisories": "dev-master"
+        "psalm/plugin-phpunit": "^0.15.1",
+        "roave/security-advisories": "dev-master",
+        "vimeo/psalm": "^4.5"
     },
     "autoload": {
         "psr-4": {
