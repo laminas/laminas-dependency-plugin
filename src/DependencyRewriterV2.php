@@ -23,6 +23,7 @@ use Symfony\Component\Console\Input\ArgvInput;
 use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 
+use function array_merge;
 use function assert;
 use function call_user_func;
 use function dirname;
@@ -262,13 +263,10 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
             '--working-dir' => dirname($this->composerFile),
         ];
 
-        foreach (self::COMPOSER_LOCK_UPDATE_OPTIONS as $optionName) {
-            if (! $this->input->hasOption($optionName)) {
-                continue;
-            }
-
-            $input[sprintf('--%s', $optionName)] = $this->input->getOption($optionName);
-        }
+        $input = array_merge($input, $this->extractAdditionalInputOptionsFromInput(
+            $this->input,
+            self::COMPOSER_LOCK_UPDATE_OPTIONS
+        ));
 
         $application->run(new ArrayInput($input));
     }
@@ -347,5 +345,25 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
     private function createComposerFile()
     {
         return new JsonFile($this->composerFile, null, $this->io);
+    }
+
+    /**
+     * @psalm-param list<non-empty-string> $options
+     * @psalm-return array<non-empty-string,mixed>
+     */
+    private function extractAdditionalInputOptionsFromInput(InputInterface $input, array $options): array
+    {
+        $additionalInputOptions = [];
+        foreach ($options as $optionName) {
+            $option = sprintf('--%s', $optionName);
+            assert(! empty($option));
+            if (! $input->hasParameterOption($option, true)) {
+                continue;
+            }
+            /** @psalm-suppress MixedAssignment */
+            $additionalInputOptions[$option] = $input->getParameterOption($option, false, true);
+        }
+
+        return $additionalInputOptions;
     }
 }
