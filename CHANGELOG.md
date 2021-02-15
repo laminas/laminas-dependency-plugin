@@ -2,27 +2,24 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.1.2 - TBD
+## 2.1.2 - 2021-02-15
 
-### Added
 
-- Nothing.
+-----
 
-### Changed
+### Release Notes for [2.1.2](https://github.com/laminas/laminas-dependency-plugin/milestone/8)
 
-- Nothing.
+2.1.x bugfix release (patch)
 
-### Deprecated
+### 2.1.2
 
-- Nothing.
+- Total issues resolved: **0**
+- Total pull requests resolved: **1**
+- Total contributors: **1**
 
-### Removed
+#### Bug,Enhancement
 
-- Nothing.
-
-### Fixed
-
-- Nothing.
+ - [32: bugfix: use proper methods to receive input option informations](https://github.com/laminas/laminas-dependency-plugin/pull/32) thanks to @boesing
 
 ## 2.1.1 - 2021-02-15
 
