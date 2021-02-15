@@ -44,7 +44,7 @@ All notable changes to this project will be documented in this file, in reverse 
 
 ### Fixed
 
-- Nothing.
+- [#29](https://github.com/laminas/laminas-dependency-plugin/pull/29) Pass `ignore-platform-reqs` **and/or** `ignore-platform-req=<requirement>` options to the `composer update --lock` command when these were originally passed to the composer command aswell.
 
 ## 2.1.0 - 2020-11-02
 
