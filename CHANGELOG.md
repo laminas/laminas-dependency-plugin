@@ -20,6 +20,8 @@ All notable changes to this project will be documented in this file, in reverse 
 
 - Nothing.
 
+## 2.1.1 - 2021-02-15
+
 ### Fixed
 
 - Nothing.
