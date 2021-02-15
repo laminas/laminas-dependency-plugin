@@ -970,26 +970,27 @@ final class DependencyRewriterV2Test extends TestCase
         $consecutiveGetOptionReturnValues = [];
 
         foreach (DependencyRewriterV2::COMPOSER_LOCK_UPDATE_OPTIONS as $optionName) {
-            $consecutiveHasOptionArguments[]    = [$optionName];
+            $option                             = sprintf('--%s', $optionName);
+            $consecutiveHasOptionArguments[]    = [$option, true];
             $passed                             = array_key_exists($optionName, $optionsPassedToComposer);
             $consecutiveHasOptionReturnValues[] = $passed;
             if (! $passed) {
                 continue;
             }
 
-            $consecutiveGetOptionArguments[]    = [$optionName];
+            $consecutiveGetOptionArguments[]    = [$option, false, true];
             $consecutiveGetOptionReturnValues[] = $optionsPassedToComposer[$optionName];
         }
 
         $input
             ->expects(self::exactly(count(DependencyRewriterV2::COMPOSER_LOCK_UPDATE_OPTIONS)))
-            ->method('hasOption')
+            ->method('hasParameterOption')
             ->withConsecutive(...$consecutiveHasOptionArguments)
             ->willReturnOnConsecutiveCalls(...$consecutiveHasOptionReturnValues);
 
         $input
             ->expects(self::exactly(count($consecutiveGetOptionArguments)))
-            ->method('getOption')
+            ->method('getParameterOption')
             ->withConsecutive(...$consecutiveGetOptionArguments)
             ->willReturnOnConsecutiveCalls(...$consecutiveGetOptionReturnValues);
 
