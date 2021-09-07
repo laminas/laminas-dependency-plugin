@@ -17,8 +17,4 @@
 
     <!-- Include all rules from Laminas Coding Standard -->
     <rule ref="LaminasCodingStandard" />
-
-    <rule ref="SlevomatCodingStandard.Classes.UnusedPrivateElements.UnusedMethod">
-        <exclude-pattern>/src/AbstractDependencyRewriter.php</exclude-pattern>
-    </rule>
 </ruleset>
