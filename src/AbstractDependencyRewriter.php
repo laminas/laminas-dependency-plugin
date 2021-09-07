@@ -81,10 +81,21 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
             return;
         }
 
+        /** @psalm-var null|array<array-key, string|numeric> $packages */
         $packages = $input->getArgument('packages');
+
+        // Ensure we have an array of strings
+        $packages = is_array($packages) ? $packages : [];
+        $packages = array_map(
+            function ($value) {
+                return (string) $value;
+            },
+            $packages
+        );
+
         $input->setArgument(
             'packages',
-            is_array($packages) ? array_map([$this, 'updatePackageArgument'], $packages) : []
+            array_map([$this, 'updatePackageArgument'], $packages)
         );
     }
 

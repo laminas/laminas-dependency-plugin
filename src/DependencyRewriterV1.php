@@ -42,7 +42,6 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
         $jobs = $request->getJobs();
 
         foreach ($jobs as $index => $job) {
-            /** @psalm-var array<string, string> $job */
             if (! isset($job['cmd']) || ! in_array($job['cmd'], ['install', 'update'], true)) {
                 continue;
             }

@@ -1024,6 +1024,7 @@ final class DependencyRewriterV2Test extends TestCase
     }
 
     /**
+     * @psalm-suppress MoreSpecificReturnType
      * @psalm-return iterable<non-empty-string,array{0:TComposerOptions,1:TComposerOptions}>
      */
     public function composerUpdateLockArguments(): iterable

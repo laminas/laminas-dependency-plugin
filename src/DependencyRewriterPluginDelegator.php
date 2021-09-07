@@ -39,7 +39,7 @@ class DependencyRewriterPluginDelegator implements EventSubscriberInterface, Plu
     public static function getSubscribedEvents()
     {
         if (version_compare(PluginInterface::PLUGIN_API_VERSION, '2.0', 'lt')) {
-            /** @psalm-suppress UndefinedConstant */
+            /** @psalm-suppress UndefinedConstant,MixedArrayOffset */
             return [
                 InstallerEvents::PRE_DEPENDENCIES_SOLVING => ['onPreDependenciesSolving', 1000],
                 PackageEvents::PRE_PACKAGE_INSTALL        => ['onPrePackageInstallOrUpdate', 1000],
