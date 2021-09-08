@@ -87,7 +87,8 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
         // Ensure we have an array of strings
         $packages = is_array($packages) ? $packages : [];
         $packages = array_map(
-            function ($value) {
+            /** @param scalar $value */
+            static function ($value): string {
                 return (string) $value;
             },
             $packages
