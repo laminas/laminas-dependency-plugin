@@ -1,10 +1,6 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-dependency-plugin for the canonical source repository
- * @copyright https://github.com/laminas/laminas-dependency-plugin/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-dependency-plugin/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\DependencyPlugin;
 
@@ -85,10 +81,22 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
             return;
         }
 
+        /** @psalm-var null|array<array-key, string|numeric> $packages */
         $packages = $input->getArgument('packages');
+
+        // Ensure we have an array of strings
+        $packages = is_array($packages) ? $packages : [];
+        $packages = array_map(
+            /** @param scalar $value */
+            static function ($value): string {
+                return (string) $value;
+            },
+            $packages
+        );
+
         $input->setArgument(
             'packages',
-            is_array($packages) ? array_map([$this, 'updatePackageArgument'], $packages) : []
+            array_map([$this, 'updatePackageArgument'], $packages)
         );
     }
 

@@ -1,10 +1,6 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-dependency-plugin for the canonical source repository
- * @copyright https://github.com/laminas/laminas-dependency-plugin/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-dependency-plugin/blob/master/LICENSE.md New BSD License
- */
+declare(strict_types=1);
 
 namespace Laminas\DependencyPlugin;
 
@@ -46,7 +42,6 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
         $jobs = $request->getJobs();
 
         foreach ($jobs as $index => $job) {
-            /** @psalm-var array<string, string> $job */
             if (! isset($job['cmd']) || ! in_array($job['cmd'], ['install', 'update'], true)) {
                 continue;
             }

@@ -1,11 +1,5 @@
 <?php
 
-/**
- * @see       https://github.com/laminas/laminas-dependency-plugin for the canonical source repository
- * @copyright https://github.com/laminas/laminas-dependency-plugin/blob/master/COPYRIGHT.md
- * @license   https://github.com/laminas/laminas-dependency-plugin/blob/master/LICENSE.md New BSD License
- */
-
 declare(strict_types=1);
 
 namespace LaminasTest\DependencyPlugin;
@@ -1030,6 +1024,7 @@ final class DependencyRewriterV2Test extends TestCase
     }
 
     /**
+     * @psalm-suppress MoreSpecificReturnType
      * @psalm-return iterable<non-empty-string,array{0:TComposerOptions,1:TComposerOptions}>
      */
     public function composerUpdateLockArguments(): iterable
