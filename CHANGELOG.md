@@ -2,23 +2,30 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.2.0 - TBD
+## 2.2.0 - 2021-09-08
+
+
+-----
+
+### Release Notes for [2.2.0](https://github.com/laminas/laminas-dependency-plugin/milestone/7)
 
 ### Added
 
-- Nothing.
+- This release adds support for PHP 8.1.
 
-### Changed
+### 2.2.0
 
-- Nothing.
+- Total issues resolved: **0**
+- Total pull requests resolved: **2**
+- Total contributors: **2**
 
-### Deprecated
+#### Enhancement
 
-- Nothing.
+ - [37: Provide PHP 8.1 support](https://github.com/laminas/laminas-dependency-plugin/pull/37) thanks to @weierophinney
 
-### Removed
+#### dependencies
 
-- Nothing.
+ - [35: build(deps-dev): bump composer/composer from 2.0.9 to 2.0.13](https://github.com/laminas/laminas-dependency-plugin/pull/35) thanks to @dependabot[bot]
 
 ## 2.1.2 - 2021-02-15
 
