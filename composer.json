@@ -4,7 +4,10 @@
     "type": "composer-plugin",
     "license": "BSD-3-Clause",
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "platform": {
+            "php": "7.3.99"
+        }
     },
     "require": {
         "php": "^7.3 || ~8.0.0 || ~8.1.0",
