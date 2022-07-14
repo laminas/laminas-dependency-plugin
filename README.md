@@ -1,7 +1,8 @@
 # laminas-dependency-plugin
 
-[![Build Status](https://travis-ci.com/laminas/laminas-dependency-plugin.svg)](https://travis-ci.com/laminas/laminas-dependency-plugin)
-[![codecov](https://codecov.io/gh/laminas/laminas-dependency-plugin/branch/master/graph/badge.svg)](https://codecov.io/gh/laminas/laminas-dependency-plugin)
+> This package is considered feature-complete, and is now in **security-only** maintenance mode, following a [decision by the Technical Steering Committee](https://github.com/laminas/technical-steering-committee/blob/6dc4d8a798021f690ad8c65d0d9a0c4b21835a1e/meetings/minutes/2022-07-11-TSC-Minutes.md#future-of-the-migration-layer).
+> If you have a security issue, please [follow our security reporting guidelines](https://getlaminas.org/security/).
+> If you wish to take on the role of maintainer, please [nominate yourself](https://github.com/laminas/technical-steering-committee/issues/new?assignees=&labels=Nomination&template=Maintainer_Nomination.md&title=%5BNOMINATION%5D%5BMAINTAINER%5D%3A+%7Bname+of+person+being+nominated%7D)
 
 > ## 🇷🇺 Русским гражданам
 > 
