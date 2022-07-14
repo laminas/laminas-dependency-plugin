@@ -2,27 +2,25 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.3.0 - TBD
+## 2.3.0 - 2022-07-14
 
-### Added
 
-- Nothing.
+-----
 
-### Changed
+### Release Notes for [2.3.0](https://github.com/laminas/laminas-dependency-plugin/milestone/11)
 
-- Nothing.
+Feature release (minor)
 
-### Deprecated
+### 2.3.0
 
-- Nothing.
+- Total issues resolved: **0**
+- Total pull requests resolved: **2**
+- Total contributors: **2**
 
-### Removed
+#### Enhancement
 
-- Nothing.
-
-### Fixed
-
-- Nothing.
+ - [41: Mark package security-only](https://github.com/laminas/laminas-dependency-plugin/pull/41) thanks to @weierophinney
+ - [39: Prepare for Renovate with reusable workflows](https://github.com/laminas/laminas-dependency-plugin/pull/39) thanks to @ghostwriter
 
 ## 2.2.0 - 2021-09-08
 
