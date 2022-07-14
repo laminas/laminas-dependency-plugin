@@ -106,6 +106,16 @@ the equivalents from the Laminas Project.</p>
 <h2 id="installation">Installation</h2>
 <pre><code class="language-bash">$ composer require laminas/laminas-dependency-plugin
 </code></pre>
+<h3 id="composer-version">Composer version</h3>
+<p>This package only works with Composer versions prior to 2.3; we recommend using the 2.2 LTS version.
+The <a href="https://getcomposer.org/download/">Composer download documentation</a> details how to select the 2.2 LTS:</p>
+<pre><code class="language-bash">php -r &quot;copy('https://getcomposer.org/installer', 'composer-setup.php');&quot;
+php -r &quot;if (hash_file('sha384', 'composer-setup.php') === '55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;&quot;
+php composer-setup.php --2.2
+</code></pre>
+<p>If you are on a later version of Composer, you can choose to rollback to the LTS version using the <code>self-update</code> command:</p>
+<pre><code class="language-bash">composer self-update --2.2
+</code></pre>
 <h2 id="removal">Removal</h2>
 <p>If you no longer want to use the plugin (e.g., if no packages you use or plan to
 use will have dependencies on legacy Zend Framework packages):</p>
