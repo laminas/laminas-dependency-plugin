@@ -2,5 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>laminas/.github:renovate-config"
+  ],
+  "packageRules": [
+    {"matchPackageNames": ["composer-plugin-api", "composer/composer"], "allowedVersions": "<2.3.0"}
   ]
 }
