@@ -42,8 +42,7 @@ final class DependencyRewriterV1Test extends TestCase
      */
     private $io;
 
-    /** @var DependencyRewriterV1 */
-    private $plugin;
+    private DependencyRewriterV1 $plugin;
 
     public function setUp(): void
     {

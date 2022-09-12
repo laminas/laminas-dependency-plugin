@@ -8,6 +8,7 @@ use Composer\Composer;
 use Composer\Installer\PackageEvent;
 use Composer\IO\IOInterface;
 use Composer\Plugin\PreCommandRunEvent;
+use Laminas\DependencyPlugin\Replacements;
 
 use function array_map;
 use function array_shift;
@@ -32,8 +33,7 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
      */
     protected $io;
 
-    /** @var Replacements */
-    private $replacements;
+    private Replacements $replacements;
 
     public function __construct()
     {
@@ -88,9 +88,7 @@ abstract class AbstractDependencyRewriter implements RewriterInterface
         $packages = is_array($packages) ? $packages : [];
         $packages = array_map(
             /** @param scalar $value */
-            static function ($value): string {
-                return (string) $value;
-            },
+            static fn($value): string => (string) $value,
             $packages
         );
 

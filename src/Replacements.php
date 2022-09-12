@@ -11,7 +11,7 @@ use function sprintf;
 final class Replacements
 {
     /** @var string[] */
-    private $ignore = [
+    private array $ignore = [
         'zendframework/zend-debug',
         'zendframework/zend-version',
         'zendframework/zendservice-apple-apns',

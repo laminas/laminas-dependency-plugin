@@ -45,11 +45,9 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
     /** @var callable */
     private $applicationFactory;
 
-    /** @var string */
-    private $composerFile;
+    private string $composerFile;
 
-    /** @var InputInterface */
-    private $input;
+    private InputInterface $input;
 
     public function __construct(
         ?callable $applicationFactory = null,
@@ -60,9 +58,7 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
 
         /** @psalm-suppress MixedAssignment */
         $this->composerFile       = $composerFile ?: Factory::getComposerFile();
-        $this->applicationFactory = $applicationFactory ?? static function (): Application {
-            return new Application();
-        };
+        $this->applicationFactory = $applicationFactory ?? static fn(): Application => new Application();
         $this->input              = $input ?? new ArgvInput();
     }
 

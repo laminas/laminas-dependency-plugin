@@ -16,11 +16,8 @@ use function strpos;
 
 class IOWriteExpectations implements IteratorAggregate
 {
-    /**
-     * @var array
-     * @psalm-var array<string, bool>
-     */
-    private $messages = [];
+    /** @psalm-var array<string, bool> */
+    private array $messages = [];
 
     /**
      * @param string[] $messages
@@ -68,8 +65,6 @@ class IOWriteExpectations implements IteratorAggregate
 
     public function foundAll(): bool
     {
-        return array_reduce($this->messages, function (bool $found, bool $flag): bool {
-            return $found && $flag;
-        }, true);
+        return array_reduce($this->messages, static fn(bool $found, bool $flag): bool => $found && $flag, true);
     }
 }

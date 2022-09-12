@@ -17,14 +17,14 @@ use Composer\Plugin\PreCommandRunEvent;
 use Composer\Plugin\PrePoolCreateEvent;
 use Composer\Script\Event;
 use Composer\Script\ScriptEvents;
+use Laminas\DependencyPlugin\RewriterInterface;
 
 use function assert;
 use function version_compare;
 
 class DependencyRewriterPluginDelegator implements EventSubscriberInterface, PluginInterface
 {
-    /** @var RewriterInterface */
-    private $rewriter;
+    private RewriterInterface $rewriter;
 
     public function __construct(?RewriterInterface $rewriter = null)
     {
