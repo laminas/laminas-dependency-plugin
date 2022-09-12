@@ -64,8 +64,7 @@ final class DependencyRewriterV2Test extends TestCase
      */
     private $io;
 
-    /** @var DependencyRewriterV2 */
-    private $plugin;
+    private DependencyRewriterV2 $plugin;
 
     /**
      * @var InstallationManager|MockObject
@@ -130,7 +129,7 @@ final class DependencyRewriterV2Test extends TestCase
         $this->io
             ->expects($this->any())
             ->method('write')
-            ->will($this->returnCallback(function (string $message) use ($ioWriteExpectations): void {
+            ->will($this->returnCallback(static function (string $message) use ($ioWriteExpectations): void {
                 if (! $ioWriteExpectations->matches($message)) {
                     throw new InvalidArgumentException('IO::write received unexpected message: ' . $message);
                 }
@@ -451,9 +450,7 @@ final class DependencyRewriterV2Test extends TestCase
             $uninstallExpectations[] = [
                 $this->localRepository,
                 $this->callback(
-                    static function (Operation\UninstallOperation $operation) use ($package): bool {
-                        return $operation->getPackage() === $package;
-                    }
+                    static fn(Operation\UninstallOperation $operation): bool => $operation->getPackage() === $package
                 ),
             ];
         }

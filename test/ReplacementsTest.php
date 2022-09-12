@@ -9,8 +9,7 @@ use PHPUnit\Framework\TestCase;
 
 final class ReplacementsTest extends TestCase
 {
-    /** @var Replacements */
-    private $replacements;
+    private Replacements $replacements;
 
     protected function setUp(): void
     {
