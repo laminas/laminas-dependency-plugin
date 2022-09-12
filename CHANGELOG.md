@@ -2,27 +2,28 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.4.0 - TBD
+## 2.4.0 - 2022-09-12
 
-### Added
 
-- Nothing.
+-----
 
-### Changed
+### Release Notes for [2.4.0](https://github.com/laminas/laminas-dependency-plugin/milestone/13)
 
-- Nothing.
+Feature release (minor)
 
-### Deprecated
+### 2.4.0
 
-- Nothing.
+- Total issues resolved: **0**
+- Total pull requests resolved: **4**
+- Total contributors: **2**
 
-### Removed
+ - [47: Update minimum PHP to 7.4, update `laminas/laminas-coding-standard` to `~2.4.0`, restrict `composer` `&lt;2.3.0` in renovate](https://github.com/laminas/laminas-dependency-plugin/pull/47) thanks to @internalsystemerror
 
-- Nothing.
+#### renovate
 
-### Fixed
-
-- Nothing.
+ - [45: Lock file maintenance](https://github.com/laminas/laminas-dependency-plugin/pull/45) thanks to @renovate[bot]
+ - [43: Update dependency psalm/plugin-phpunit to ^0.17.0](https://github.com/laminas/laminas-dependency-plugin/pull/43) thanks to @renovate[bot]
+ - [42: Configure Renovate](https://github.com/laminas/laminas-dependency-plugin/pull/42) thanks to @renovate[bot]
 
 ## 2.3.0 - 2022-07-14
 
