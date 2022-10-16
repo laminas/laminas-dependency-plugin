@@ -10,7 +10,6 @@ use Composer\Installer\PackageEvent;
 use Composer\IO\IOInterface;
 use Composer\Package\PackageInterface;
 
-use function get_class;
 use function in_array;
 use function sprintf;
 
@@ -104,7 +103,7 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
                 // Nothing to do
                 $this->output(sprintf(
                     '<info>Exiting; operation of type %s not supported</info>',
-                    get_class($operation)
+                    $operation::class
                 ), IOInterface::DEBUG);
                 return;
         }

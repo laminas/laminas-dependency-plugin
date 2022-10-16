@@ -24,7 +24,6 @@ use ReflectionProperty;
 use Symfony\Component\Console\Input\InputInterface;
 
 use function array_unshift;
-use function get_class;
 use function sprintf;
 use function version_compare;
 
@@ -352,7 +351,7 @@ final class DependencyRewriterV1Test extends TestCase
 
         $ioWriteExpectations = $this->prepareIOWriteExpectations(
             'In ' . DependencyRewriterV1::class . '::onPrePackageInstallOrUpdate',
-            'Exiting; operation of type ' . get_class($operation) . ' not supported'
+            'Exiting; operation of type ' . $operation::class . ' not supported'
         );
 
         $this->activatePlugin($this->plugin);

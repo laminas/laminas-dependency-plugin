@@ -23,7 +23,6 @@ use function array_merge;
 use function assert;
 use function call_user_func;
 use function dirname;
-use function get_class;
 use function in_array;
 use function is_array;
 use function ksort;
@@ -87,7 +86,7 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
                 // Nothing to do
                 $this->output(sprintf(
                     '<info>Exiting; operation of type %s not supported</info>',
-                    get_class($operation)
+                    $operation::class
                 ), IOInterface::DEBUG);
                 return;
         }
