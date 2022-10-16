@@ -37,7 +37,6 @@ use function array_keys;
 use function array_map;
 use function array_unshift;
 use function count;
-use function get_class;
 use function in_array;
 use function json_decode;
 use function json_encode;
@@ -263,7 +262,7 @@ final class DependencyRewriterV2Test extends TestCase
 
         $ioWriteExpectations = $this->prepareIOWriteExpectations(
             'In ' . DependencyRewriterV2::class . '::onPrePackageInstallOrUpdate',
-            'Exiting; operation of type ' . get_class($operation) . ' not supported'
+            'Exiting; operation of type ' . $operation::class . ' not supported'
         );
 
         $this->activatePlugin($this->plugin);
