@@ -21,7 +21,7 @@
         "laminas/laminas-coding-standard": "~2.4.0",
         "mikey179/vfsstream": "^1.6.11",
         "phpunit/phpunit": "^9.5.5",
-        "psalm/plugin-phpunit": "^0.17.0",
+        "psalm/plugin-phpunit": "^0.18.0",
         "roave/security-advisories": "dev-master",
         "vimeo/psalm": "^4.5"
     },
