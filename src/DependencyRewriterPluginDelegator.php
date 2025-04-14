@@ -59,6 +59,7 @@ class DependencyRewriterPluginDelegator implements EventSubscriberInterface, Plu
 
     /**
      * @return void
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function onPreDependenciesSolving(InstallerEvent $event)
     {
@@ -69,6 +70,7 @@ class DependencyRewriterPluginDelegator implements EventSubscriberInterface, Plu
 
     /**
      * @return void
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function onPrePackageInstallOrUpdate(PackageEvent $event)
     {
@@ -77,6 +79,7 @@ class DependencyRewriterPluginDelegator implements EventSubscriberInterface, Plu
 
     /**
      * @return void
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function onPreCommandRun(PreCommandRunEvent $event)
     {
@@ -85,6 +88,7 @@ class DependencyRewriterPluginDelegator implements EventSubscriberInterface, Plu
 
     /**
      * @return void
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function onPrePoolCreate(PrePoolCreateEvent $event)
     {
@@ -95,6 +99,7 @@ class DependencyRewriterPluginDelegator implements EventSubscriberInterface, Plu
 
     /**
      * @return void
+     * @psalm-suppress PossiblyUnusedMethod
      */
     public function onPostAutoloadDump(Event $event)
     {

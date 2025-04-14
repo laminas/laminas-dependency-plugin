@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="4.21.0@d8bec4c7aaee111a532daec32fb09de5687053d1">
+<files psalm-version="6.0.0@b8e96bb617bf59382113b1b56cef751f648a7dc9">
   <file src="src/DependencyRewriterPluginDelegator.php">
-    <LessSpecificImplementedReturnType occurrences="1">
-      <code>array</code>
+    <LessSpecificImplementedReturnType>
+      <code><![CDATA[array]]></code>
     </LessSpecificImplementedReturnType>
   </file>
   <file src="src/DependencyRewriterV2.php">
-    <ArgumentTypeCoercion occurrences="1">
-      <code>$packages</code>
+    <ArgumentTypeCoercion>
+      <code><![CDATA[$packages]]></code>
     </ArgumentTypeCoercion>
   </file>
 </files>
