@@ -2,27 +2,22 @@
 
 All notable changes to this project will be documented in this file, in reverse chronological order by release.
 
-## 2.7.0 - TBD
+## 2.7.0 - 2025-04-14
 
-### Added
 
-- Nothing.
+-----
 
-### Changed
+### Release Notes for [2.7.0](https://github.com/laminas/laminas-dependency-plugin/milestone/19)
 
-- Nothing.
+Feature release (minor)
 
-### Deprecated
+### 2.7.0
 
-- Nothing.
+- Total issues resolved: **0**
+- Total pull requests resolved: **1**
+- Total contributors: **1**
 
-### Removed
-
-- Nothing.
-
-### Fixed
-
-- Nothing.
+ - [68: Add PHP 8.4 support](https://github.com/laminas/laminas-dependency-plugin/pull/68) thanks to @AlEscarcha
 
 ## 2.6.0 - 2023-12-14
 
