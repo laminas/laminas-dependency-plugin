@@ -172,6 +172,7 @@ final class DependencyRewriterV1 extends AbstractDependencyRewriter implements D
          * @param mixed $value
          * @psalm-suppress MissingClosureParamType
          * @psalm-suppress PossiblyInvalidFunctionCall
+         * @psalm-suppress PossiblyNullFunctionCall
          */
         (function (object $object, string $property, $value): void {
             $object->$property = $value;

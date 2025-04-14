@@ -31,7 +31,10 @@ final class Replacements
         switch ($name) {
             // Packages without replacements:
             case in_array($name, $this->ignore, true):
-                /** @psalm-suppress MixedReturnStatement */
+                /**
+                 * @psalm-suppress MixedReturnStatement
+                 * @psalm-suppress NoValue
+                 */
                 return $name;
             // Packages with non-standard naming:
             case 'zendframework/zenddiagnostics':

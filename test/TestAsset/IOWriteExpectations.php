@@ -14,6 +14,9 @@ use function implode;
 use function sprintf;
 use function strpos;
 
+/**
+ * @psalm-suppress MissingTemplateParam
+ */
 class IOWriteExpectations implements IteratorAggregate
 {
     /** @psalm-var array<string, bool> */

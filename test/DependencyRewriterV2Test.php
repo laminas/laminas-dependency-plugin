@@ -35,6 +35,7 @@ use function array_combine;
 use function array_key_exists;
 use function array_keys;
 use function array_map;
+use function array_shift;
 use function array_unshift;
 use function count;
 use function in_array;
@@ -455,10 +456,17 @@ final class DependencyRewriterV2Test extends TestCase
         }
 
         $ioWriteExpectations = $this->prepareIOWriteExpectations(...$stringsToWrite);
+        /** @var array<array-key, mixed> $calls */
+        $calls = $uninstallExpectations;
         $this->installationManager
             ->expects($this->exactly(count($zendPackages)))
             ->method('uninstall')
-            ->withConsecutive(...$uninstallExpectations);
+            ->willReturnCallback(function () use (&$calls): mixed {
+                /**
+                 * @psalm-suppress MixedArgument
+                 */
+                return array_shift($calls);
+            });
 
         $event = $this->createMock(Event::class);
         $event
@@ -850,6 +858,7 @@ final class DependencyRewriterV2Test extends TestCase
 
     /**
      * @psalm-suppress MoreSpecificReturnType
+     * @psalm-suppress InvalidReturnType
      * @psalm-return iterable<string, array{
      *     0: array<string, string>,
      *     1: array<string, array<string, string>>,
@@ -972,17 +981,65 @@ final class DependencyRewriterV2Test extends TestCase
             $consecutiveGetOptionReturnValues[] = $optionsPassedToComposer[$optionName];
         }
 
-        $input
-            ->expects(self::exactly(count(DependencyRewriterV2::COMPOSER_LOCK_UPDATE_OPTIONS)))
-            ->method('hasParameterOption')
-            ->withConsecutive(...$consecutiveHasOptionArguments)
-            ->willReturnOnConsecutiveCalls(...$consecutiveHasOptionReturnValues);
+        /** @var list<list<mixed>> $hasOptionExpectedCalls */
+        $hasOptionExpectedCalls = $consecutiveHasOptionArguments;
+
+        /** @var list<mixed> $hasOptionReturnValues */
+        $hasOptionReturnValues = $consecutiveHasOptionReturnValues;
 
         $input
-            ->expects(self::exactly(count($consecutiveGetOptionArguments)))
+            ->expects(self::exactly(count($hasOptionExpectedCalls)))
+            ->method('hasParameterOption')
+            ->willReturnCallback(
+            /**
+             * @param list<mixed> $args
+             */
+                function (mixed ...$args) use (&$hasOptionExpectedCalls, &$hasOptionReturnValues): mixed {
+                    /**
+                     * @var list<mixed> $expectedArgs
+                     * @psalm-suppress MixedArgument
+                     */
+                    $expectedArgs = array_shift($hasOptionExpectedCalls);
+                    self::assertSame($expectedArgs, $args);
+
+                    /**
+                     * @var mixed $returnValue
+                     * @psalm-suppress MixedArgument
+                     */
+                    $returnValue = array_shift($hasOptionReturnValues);
+                    return $returnValue;
+                }
+            );
+
+        /** @var list<list<mixed>> $getOptionExpectedCalls */
+        $getOptionExpectedCalls = $consecutiveGetOptionArguments;
+
+        /** @var list<mixed> $getOptionReturnValues */
+        $getOptionReturnValues = $consecutiveGetOptionReturnValues;
+
+        $input
+            ->expects(self::exactly(count($getOptionExpectedCalls)))
             ->method('getParameterOption')
-            ->withConsecutive(...$consecutiveGetOptionArguments)
-            ->willReturnOnConsecutiveCalls(...$consecutiveGetOptionReturnValues);
+            ->willReturnCallback(
+            /**
+             * @param list<mixed> $args
+             */
+                function (mixed ...$args) use (&$getOptionExpectedCalls, &$getOptionReturnValues): mixed {
+                    /**
+                     * @var list<mixed> $expectedArgs
+                     * @psalm-suppress MixedArgument
+                     */
+                    $expectedArgs = array_shift($getOptionExpectedCalls);
+                    self::assertSame($expectedArgs, $args);
+
+                    /**
+                     * @var mixed $returnValue
+                     * @psalm-suppress MixedArgument
+                     */
+                    $returnValue = array_shift($getOptionReturnValues);
+                    return $returnValue;
+                }
+            );
 
         $factory = $this->createApplicationFactory($expectedOptionsToBePassedToComposerLockUpdate);
 
@@ -1021,6 +1078,7 @@ final class DependencyRewriterV2Test extends TestCase
 
     /**
      * @psalm-suppress MoreSpecificReturnType
+     * @psalm-suppress InvalidReturnType
      * @psalm-return iterable<non-empty-string,array{0:TComposerOptions,1:TComposerOptions}>
      */
     public function composerUpdateLockArguments(): iterable

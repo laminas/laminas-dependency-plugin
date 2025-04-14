@@ -323,6 +323,8 @@ final class DependencyRewriterV2 extends AbstractDependencyRewriter implements
     /**
      * @deprecated Please use public property {@see DependencyRewriterV2::$zendPackagesInstalled} instead.
      *
+     * @psalm-suppress PossiblyUnusedMethod
+     *
      * @return PackageInterface[]
      */
     public function getZendPackagesInstalled()
