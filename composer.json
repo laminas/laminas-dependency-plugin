@@ -20,7 +20,7 @@
         "amphp/dns": "^2.4.0",
         "amphp/socket": "^2.3.1",
         "amphp/byte-stream": "^2.0.0",
-        "composer/composer": ">=1.9.0 <2.3.0",
+        "composer/composer": ">=2.2.26 <2.3.0",
         "laminas/laminas-coding-standard": "~2.5.0",
         "mikey179/vfsstream": "^1.6.11",
         "phpunit/phpunit": "^9.6.22",
